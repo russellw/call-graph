@@ -1,4 +1,4 @@
-class Program {
+static class Program {
 	static void Help() {
 		var name = typeof(Program).Assembly.GetName().Name;
 		Console.WriteLine($"Usage: {name} [options]");
