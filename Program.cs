@@ -71,8 +71,25 @@ static class Program {
 		var compilation =
 			CSharpCompilation.Create(null).AddReferences(MetadataReference.CreateFromFile(typeof(object).Assembly.Location));
 		Descend(".", file => {
-			if (string.Equals(Path.GetExtension(file), ".dll", StringComparison.OrdinalIgnoreCase))
-				compilation = compilation.AddReferences(MetadataReference.CreateFromFile(file));
+			if (!string.Equals(Path.GetExtension(file), ".dll", StringComparison.OrdinalIgnoreCase))
+				return;
+			compilation = compilation.AddReferences(MetadataReference.CreateFromFile(file));
+		});
+
+		// Source files
+		Descend(".", file => {
+			if (!string.Equals(Path.GetExtension(file), ".cs", StringComparison.OrdinalIgnoreCase))
+				return;
+			var text = File.ReadAllText(file);
+			var tree = CSharpSyntaxTree.ParseText(text, CSharpParseOptions.Default, file);
+			if (tree.GetDiagnostics().Any()) {
+				foreach (var diagnostic in tree.GetDiagnostics())
+					Console.Error.WriteLine(diagnostic);
+				Environment.Exit(1);
+			}
+			var model = compilation.AddSyntaxTrees(tree).GetSemanticModel(tree);
+			var root = tree.GetCompilationUnitRoot();
+			Console.WriteLine(file);
 		});
 	}
 
