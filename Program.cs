@@ -12,10 +12,10 @@ static class Program {
 					Descend(entry.FullName, f);
 				continue;
 			}
-			if (string.Equals(entry.Extension, ".cs", StringComparison.OrdinalIgnoreCase))
-				f(entry.FullName);
+			f(entry.FullName);
 		}
 	}
+
 	static void Exec(string program, string args) {
 		Console.WriteLine($"{program} {args}");
 		var process = new Process();
@@ -70,6 +70,10 @@ static class Program {
 		// References
 		var compilation =
 			CSharpCompilation.Create(null).AddReferences(MetadataReference.CreateFromFile(typeof(object).Assembly.Location));
+		Descend(".", file => {
+			if (string.Equals(Path.GetExtension(file), ".dll", StringComparison.OrdinalIgnoreCase))
+				compilation = compilation.AddReferences(MetadataReference.CreateFromFile(file));
+		});
 	}
 
 	static void Version() {
