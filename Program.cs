@@ -1,6 +1,21 @@
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis;
 using System.Diagnostics;
 
 static class Program {
+	delegate void Callback(string file);
+
+	static void Descend(string path, Callback f) {
+		foreach (var entry in new DirectoryInfo(path).EnumerateFileSystemInfos()) {
+			if (entry is DirectoryInfo) {
+				if (!entry.Name.StartsWith('.'))
+					Descend(entry.FullName, f);
+				continue;
+			}
+			if (string.Equals(entry.Extension, ".cs", StringComparison.OrdinalIgnoreCase))
+				f(entry.FullName);
+		}
+	}
 	static void Exec(string program, string args) {
 		Console.WriteLine($"{program} {args}");
 		var process = new Process();
@@ -51,6 +66,10 @@ static class Program {
 
 		// Build
 		Exec("dotnet", "clean /p:Configuration=Release /p:Platform=\"Any CPU\"");
+
+		// References
+		var compilation =
+			CSharpCompilation.Create(null).AddReferences(MetadataReference.CreateFromFile(typeof(object).Assembly.Location));
 	}
 
 	static void Version() {
