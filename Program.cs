@@ -1,4 +1,17 @@
+using System.Diagnostics;
+
 static class Program {
+	static void Exec(string program, string args) {
+		Console.WriteLine($"{program} {args}");
+		var process = new Process();
+		process.StartInfo.FileName = program;
+		process.StartInfo.Arguments = args;
+		process.Start();
+		process.WaitForExit();
+		if (0 != process.ExitCode)
+			Environment.Exit(process.ExitCode);
+	}
+
 	static void Help() {
 		var name = typeof(Program).Assembly.GetName().Name;
 		Console.WriteLine($"Usage: {name} [options]");
@@ -8,6 +21,7 @@ static class Program {
 	}
 
 	static void Main(string[] args) {
+		// Command line
 		foreach (var arg in args) {
 			var s = arg;
 			if (s.StartsWith('-')) {
@@ -34,6 +48,9 @@ static class Program {
 			Help();
 			return;
 		}
+
+		// Build
+		Exec("dotnet", "clean /p:Configuration=Release /p:Platform=\"Any CPU\"");
 	}
 
 	static void Version() {
