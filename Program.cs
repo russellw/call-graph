@@ -97,6 +97,9 @@ static class Program {
 					Environment.Exit(1);
 				}
 				trees.Add(tree);
+				var root = tree.GetCompilationUnitRoot();
+				new ClassWalker().Visit(root);
+				var model = compilation.AddSyntaxTrees(tree).GetSemanticModel(tree);
 			});
 
 			// HTML
@@ -126,10 +129,9 @@ static class Program {
 			// Classes
 			Html.Header(1, "classes");
 			Html.WriteLine("<ul>");
-			foreach (var tree in trees) {
-				var model = compilation.AddSyntaxTrees(tree).GetSemanticModel(tree);
-				var root = tree.GetCompilationUnitRoot();
-				new ClassLink().Visit(root);
+			foreach (var node in ClassWalker.Classes) {
+				Html.Write("<li>");
+				Html.Link(Etc.Name(node));
 			}
 			Html.WriteLine("</ul>");
 

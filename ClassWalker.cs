@@ -1,19 +1,16 @@
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-sealed class ClassLink: CSharpSyntaxWalker {
+sealed class ClassWalker: CSharpSyntaxWalker {
+	public static readonly List<TypeDeclarationSyntax> Classes = new();
+
 	public override void VisitClassDeclaration(ClassDeclarationSyntax node) {
-		Do(node);
+		Classes.Add(node);
 		base.VisitClassDeclaration(node);
 	}
 
 	public override void VisitStructDeclaration(StructDeclarationSyntax node) {
-		Do(node);
+		Classes.Add(node);
 		base.VisitStructDeclaration(node);
-	}
-
-	static void Do(TypeDeclarationSyntax node) {
-		Html.Write("<li>");
-		Html.Link(node.Identifier.Text);
 	}
 }
