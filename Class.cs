@@ -3,6 +3,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 sealed class Class {
 	public static readonly List<Class> Classes = new();
+
 	public readonly SemanticModel Model;
 	public readonly TypeDeclarationSyntax Node;
 
