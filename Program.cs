@@ -71,14 +71,15 @@ static class Program {
 		var compilation =
 			CSharpCompilation.Create(null).AddReferences(MetadataReference.CreateFromFile(typeof(object).Assembly.Location));
 		Descend(".", file => {
-			if (!string.Equals(Path.GetExtension(file), ".dll", StringComparison.OrdinalIgnoreCase))
+			if (!Path.GetExtension(file).Equals(".dll", StringComparison.OrdinalIgnoreCase))
 				return;
 			compilation = compilation.AddReferences(MetadataReference.CreateFromFile(file));
 		});
 
 		// Source files
+		List<SyntaxTree> trees = new();
 		Descend(".", file => {
-			if (!string.Equals(Path.GetExtension(file), ".cs", StringComparison.OrdinalIgnoreCase))
+			if (!Path.GetExtension(file).Equals(".cs", StringComparison.OrdinalIgnoreCase))
 				return;
 			var text = File.ReadAllText(file);
 			var tree = CSharpSyntaxTree.ParseText(text, CSharpParseOptions.Default, file);
@@ -87,10 +88,29 @@ static class Program {
 					Console.Error.WriteLine(diagnostic);
 				Environment.Exit(1);
 			}
+			trees.Add(tree);
+		});
+
+		// Header
+		Console.WriteLine("<!DOCTYPE html>");
+		Console.WriteLine("<html lang=\"en\">");
+		Console.WriteLine("<meta charset=\"utf-8\">");
+		foreach (var entry in new DirectoryInfo(".").EnumerateFileSystemInfos())
+			if (Path.GetExtension(entry.Name).Equals(".csproj", StringComparison.OrdinalIgnoreCase)) {
+				Console.Write("<title>");
+				Console.Write(Path.GetFileNameWithoutExtension(entry.Name));
+				Console.WriteLine("</title>");
+				break;
+			}
+
+		// Contents
+		Console.WriteLine("<ul>");
+		Console.WriteLine("</ul>");
+
+		foreach (var tree in trees) {
 			var model = compilation.AddSyntaxTrees(tree).GetSemanticModel(tree);
 			var root = tree.GetCompilationUnitRoot();
-			Console.WriteLine(file);
-		});
+		}
 	}
 
 	static void Version() {
