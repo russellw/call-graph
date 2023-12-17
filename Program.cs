@@ -106,12 +106,12 @@ static class Program {
 			Console.WriteLine("<ul>");
 
 			Console.Write("<li>");
-			Etc.Link("classes");
+			Html.Link("classes");
 
 			Console.WriteLine("</ul>");
 
 			// Classes
-			Etc.Header(1, "classes");
+			Html.Header(1, "classes");
 			foreach (var tree in trees) {
 				var model = compilation.AddSyntaxTrees(tree).GetSemanticModel(tree);
 				var root = tree.GetCompilationUnitRoot();

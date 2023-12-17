@@ -1,4 +1,4 @@
-static class Etc {
+static class Html {
 	public static void Header(int level, string id) {
 		Header(level, id, Capitalize(id));
 	}
