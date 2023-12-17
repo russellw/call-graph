@@ -96,21 +96,26 @@ static class Program {
 			// HTML
 			Html.Open(Path.Combine("bin", projectName + "-call-graph.html"));
 
-			Console.WriteLine("<!DOCTYPE html>");
-			Console.WriteLine("<html lang=\"en\">");
-			Console.WriteLine("<meta charset=\"utf-8\">");
-			Console.Write("<title>");
-			Console.Write(projectName);
-			Console.Write(" call graph");
-			Console.WriteLine("</title>");
+			Html.WriteLine("<!DOCTYPE html>");
+			Html.WriteLine("<html lang=\"en\">");
+			Html.WriteLine("<meta charset=\"utf-8\">");
+
+			Html.Write("<title>");
+			Html.Write(projectName);
+			Html.Write(" call graph");
+			Html.WriteLine("</title>");
 
 			// Contents
-			Console.WriteLine("<ul>");
+			Html.Header(1, "contents");
+			Html.WriteLine("<ul>");
 
-			Console.Write("<li>");
+			Html.Write("<li>");
+			Html.Link("contents");
+
+			Html.Write("<li>");
 			Html.Link("classes");
 
-			Console.WriteLine("</ul>");
+			Html.WriteLine("</ul>");
 
 			// Classes
 			Html.Header(1, "classes");
@@ -121,7 +126,7 @@ static class Program {
 
 			Html.Close();
 		} catch (Error e) {
-			Console.WriteLine(e.Message);
+			Console.Error.WriteLine(e.Message);
 			Environment.Exit(1);
 		}
 	}

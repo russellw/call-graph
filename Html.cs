@@ -8,9 +8,9 @@ static class Html {
 	}
 
 	public static void Header(int level, string id, string text) {
-		Console.Write($"<h{level} id=\"{id}\">");
-		Console.Write(text);
-		Console.WriteLine($"</h{level}>");
+		Write($"<h{level} id=\"{id}\">");
+		Write(text);
+		WriteLine($"</h{level}>");
 	}
 
 	public static void Link(string href) {
@@ -18,15 +18,23 @@ static class Html {
 	}
 
 	public static void Link(string href, string text) {
-		Console.Write($"<a href=\"{href}\">");
-		Console.Write(text);
-		Console.WriteLine("</a>");
+		Write($"<a href=\"{href}\">");
+		Write(text);
+		WriteLine("</a>");
 	}
 
 	public static void Open(string file) {
 		writer = new(file);
 		writer.NewLine = "\n";
 		Console.WriteLine(file);
+	}
+
+	public static void Write(string s) {
+		writer.Write(s);
+	}
+
+	public static void WriteLine(string s) {
+		writer.WriteLine(s);
 	}
 
 	static StreamWriter writer = null!;
