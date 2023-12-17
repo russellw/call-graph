@@ -29,8 +29,9 @@ static class Program {
 
 	static void Help() {
 		var name = typeof(Program).Assembly.GetName().Name;
-		Console.WriteLine($"Usage: {name} [options]");
+		Console.WriteLine($"{name} without args, expects C# project in current directory");
 		Console.WriteLine("");
+		Console.WriteLine("Options:");
 		Console.WriteLine("-h  Show help");
 		Console.WriteLine("-V  Show version");
 	}
