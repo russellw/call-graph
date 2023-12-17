@@ -125,11 +125,13 @@ static class Program {
 
 			// Classes
 			Html.Header(1, "classes");
+			Html.WriteLine("<ul>");
 			foreach (var tree in trees) {
-				Console.WriteLine(tree.FilePath);
 				var model = compilation.AddSyntaxTrees(tree).GetSemanticModel(tree);
 				var root = tree.GetCompilationUnitRoot();
+				new ClassLink().Visit(root);
 			}
+			Html.WriteLine("</ul>");
 
 			Html.Close();
 		} catch (Error e) {
