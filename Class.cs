@@ -21,4 +21,11 @@ sealed class Class {
 		}
 		return s;
 	}
+
+	public string WithBases() {
+		var s = ToString();
+		if (Node.BaseList != null)
+			s += Node.BaseList;
+		return s;
+	}
 }

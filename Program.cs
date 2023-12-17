@@ -131,7 +131,7 @@ static class Program {
 			Html.WriteLine("<ul>");
 			foreach (var c in Class.Classes) {
 				Html.Write("<li>");
-				Html.Link(c.ToString());
+				Html.Link(c.WithBases());
 			}
 			Html.WriteLine("</ul>");
 
