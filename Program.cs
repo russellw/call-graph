@@ -105,8 +105,14 @@ static class Program {
 
 		// Contents
 		Console.WriteLine("<ul>");
+
+		Console.Write("<li>");
+		Etc.Link("classes");
+
 		Console.WriteLine("</ul>");
 
+		// Classes
+		Etc.Header(1, "classes");
 		foreach (var tree in trees) {
 			var model = compilation.AddSyntaxTrees(tree).GetSemanticModel(tree);
 			var root = tree.GetCompilationUnitRoot();
