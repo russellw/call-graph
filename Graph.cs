@@ -1,0 +1,1 @@
+﻿sealed class Graph<T> {}
