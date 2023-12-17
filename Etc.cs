@@ -1,12 +1,11 @@
-﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Runtime.CompilerServices;
 
 static class Etc {
-	public static string Name(TypeDeclarationSyntax node) {
-		var s = node.Identifier.Text;
-		while (node.Parent is TypeDeclarationSyntax parent) {
-			node = parent;
-			s = $"{node.Identifier.Text}.{s}";
-		}
-		return s;
+	public static void Print(object a, [CallerFilePath] string file = "", [CallerLineNumber] int line = 0) {
+		Console.Error.WriteLine($"{file}:{line}: {a}");
+	}
+
+	public static void Print<T>(List<T> a, [CallerFilePath] string file = "", [CallerLineNumber] int line = 0) {
+		Console.Error.WriteLine("{0}:{1}: [{2}]", file, line, string.Join(", ", a));
 	}
 }

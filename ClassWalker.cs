@@ -1,16 +1,21 @@
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 sealed class ClassWalker: CSharpSyntaxWalker {
-	public static readonly List<TypeDeclarationSyntax> Classes = new();
+	public ClassWalker(SemanticModel model) {
+		this.model = model;
+	}
 
 	public override void VisitClassDeclaration(ClassDeclarationSyntax node) {
-		Classes.Add(node);
+		Class.Classes.Add(new Class(node, model));
 		base.VisitClassDeclaration(node);
 	}
 
 	public override void VisitStructDeclaration(StructDeclarationSyntax node) {
-		Classes.Add(node);
+		Class.Classes.Add(new Class(node, model));
 		base.VisitStructDeclaration(node);
 	}
+
+	readonly SemanticModel model;
 }
