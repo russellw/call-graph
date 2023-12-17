@@ -1,4 +1,8 @@
 static class Html {
+	public static void Close() {
+		writer.Dispose();
+	}
+
 	public static void Header(int level, string id) {
 		Header(level, id, Capitalize(id));
 	}
@@ -22,6 +26,7 @@ static class Html {
 	public static void Open(string file) {
 		writer = new(file);
 		writer.NewLine = "\n";
+		Console.WriteLine(file);
 	}
 
 	static StreamWriter writer = null!;

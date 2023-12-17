@@ -93,7 +93,9 @@ static class Program {
 				trees.Add(tree);
 			});
 
-			// Header
+			// HTML
+			Html.Open(Path.Combine("bin", projectName + "-call-graph.html"));
+
 			Console.WriteLine("<!DOCTYPE html>");
 			Console.WriteLine("<html lang=\"en\">");
 			Console.WriteLine("<meta charset=\"utf-8\">");
@@ -116,6 +118,8 @@ static class Program {
 				var model = compilation.AddSyntaxTrees(tree).GetSemanticModel(tree);
 				var root = tree.GetCompilationUnitRoot();
 			}
+
+			Html.Close();
 		} catch (Error e) {
 			Console.WriteLine(e.Message);
 			Environment.Exit(1);
