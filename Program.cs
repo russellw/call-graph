@@ -8,8 +8,14 @@ static class Program {
 	static void Descend(string path, Callback f) {
 		foreach (var entry in new DirectoryInfo(path).EnumerateFileSystemInfos()) {
 			if (entry is DirectoryInfo) {
-				if (!entry.Name.StartsWith('.'))
-					Descend(entry.FullName, f);
+				switch (entry.Name) {
+				case "bin":
+				case "obj":
+					continue;
+				}
+				if (entry.Name.StartsWith('.'))
+					continue;
+				Descend(entry.FullName, f);
 				continue;
 			}
 			f(entry.FullName);
@@ -120,6 +126,7 @@ static class Program {
 			// Classes
 			Html.Header(1, "classes");
 			foreach (var tree in trees) {
+				Console.WriteLine(tree.FilePath);
 				var model = compilation.AddSyntaxTrees(tree).GetSemanticModel(tree);
 				var root = tree.GetCompilationUnitRoot();
 			}
