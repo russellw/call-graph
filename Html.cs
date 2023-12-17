@@ -19,6 +19,13 @@ static class Html {
 		Console.WriteLine("</a>");
 	}
 
+	public static void Open(string file) {
+		writer = new(file);
+		writer.NewLine = "\n";
+	}
+
+	static StreamWriter writer = null!;
+
 	static string Capitalize(string s) {
 		return char.ToUpperInvariant(s[0]) + s[1..];
 	}
