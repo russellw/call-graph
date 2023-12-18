@@ -1,6 +1,7 @@
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis;
 using System.Diagnostics;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 static class Program {
 	delegate void Callback(string file);
@@ -124,6 +125,9 @@ static class Program {
 			Html.Write("<li>");
 			Html.Link("classes");
 
+			Html.Write("<li>");
+			Html.Link("methods");
+
 			Html.WriteLine("</ul>");
 
 			// Classes
@@ -132,6 +136,23 @@ static class Program {
 			foreach (var c in Class.Classes) {
 				Html.Write("<li>");
 				Html.Link(c.WithBases());
+			}
+			Html.WriteLine("</ul>");
+
+			// Methods
+			Html.Header(1, "methods");
+			Html.WriteLine("<ul>");
+			foreach (var c in Class.Classes) {
+				Html.Write("<li>");
+				Html.Link(c.ToString());
+
+				var methods = c.Node.Members.OfType<BaseMethodDeclarationSyntax>();
+				Html.WriteLine("<ul>");
+				foreach (var method in methods) {
+					Html.Write("<li>");
+					Html.Link(Etc.Signature(method));
+				}
+				Html.WriteLine("</ul>");
 			}
 			Html.WriteLine("</ul>");
 
