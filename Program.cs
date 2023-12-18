@@ -172,7 +172,7 @@ static class Program {
 					Html.Write("<li>");
 					Html.Link(Etc.Signature(method));
 
-					var walker = new CalleeWalker();
+					var walker = new CalleeWalker(c.Model);
 					walker.Visit(method);
 					Html.WriteLine("<ul>");
 					foreach (var callee in walker.Callees) {
