@@ -14,14 +14,14 @@ static class Etc {
 		string s;
 		switch (baseMethod) {
 		case ConstructorDeclarationSyntax constructor: {
-			var name = constructor.Identifier.Text;
+			var name = constructor.Identifier;
 			var parameters = baseMethod.ParameterList;
 			s = $"{name}{parameters}";
 			break;
 		}
 		case MethodDeclarationSyntax method: {
 			var returnType = method.ReturnType;
-			var name = method.Identifier.Text;
+			var name = method.Identifier;
 			var parameters = baseMethod.ParameterList;
 			s = $"{returnType} {name}{parameters}";
 			break;
