@@ -128,6 +128,9 @@ static class Program {
 			Html.Write("<li>");
 			Html.Link("methods");
 
+			Html.Write("<li>");
+			Html.Link("shallow calls");
+
 			Html.WriteLine("</ul>");
 
 			// Classes
@@ -151,6 +154,32 @@ static class Program {
 				foreach (var method in methods) {
 					Html.Write("<li>");
 					Html.Link(Etc.Signature(method));
+				}
+				Html.WriteLine("</ul>");
+			}
+			Html.WriteLine("</ul>");
+
+			// Shallow calls
+			Html.Header(1, "shallow calls");
+			Html.WriteLine("<ul>");
+			foreach (var c in Class.Classes) {
+				Html.Write("<li>");
+				Html.Link(c.ToString());
+
+				var methods = c.Node.Members.OfType<BaseMethodDeclarationSyntax>();
+				Html.WriteLine("<ul>");
+				foreach (var method in methods) {
+					Html.Write("<li>");
+					Html.Link(Etc.Signature(method));
+
+					var walker = new CalleeWalker();
+					walker.Visit(method);
+					Html.WriteLine("<ul>");
+					foreach (var callee in walker.Callees) {
+						Html.Write("<li>");
+						Html.WriteLine(callee);
+					}
+					Html.WriteLine("</ul>");
 				}
 				Html.WriteLine("</ul>");
 			}
