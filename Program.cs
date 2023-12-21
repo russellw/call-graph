@@ -1,6 +1,5 @@
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis;
-using System.Diagnostics;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 static class Program {
@@ -33,7 +32,7 @@ static class Program {
 	}
 
 	static void Indent(int n) {
-		while (0 < n--)
+		while (0 != n--)
 			Console.Write("  ");
 	}
 
