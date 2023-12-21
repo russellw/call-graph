@@ -22,17 +22,8 @@ sealed class CalleeWalker: CSharpSyntaxWalker {
 
 	ISymbol? Callee(InvocationExpressionSyntax node) {
 		var info = model.GetSymbolInfo(node);
-		if (info.CandidateSymbols.Any() || CandidateReason.None != info.CandidateReason) {
-			Etc.Print(node);
-			Etc.Print(info.Symbol!);
-			Etc.Print(info.CandidateSymbols);
-			Etc.Print(info.CandidateReason);
-			Console.Error.WriteLine();
-		}
 		if (info.Symbol != null)
 			return info.Symbol;
-		if (1 == info.CandidateSymbols.Length)
-			return info.CandidateSymbols[0];
-		return null;
+		return info.CandidateSymbols.FirstOrDefault();
 	}
 }

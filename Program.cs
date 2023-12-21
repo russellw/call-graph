@@ -63,17 +63,9 @@ static class Program {
 				return;
 			}
 
-			// Reference DLLs
-			var compilation =
-				CSharpCompilation.Create(null).AddReferences(MetadataReference.CreateFromFile(typeof(object).Assembly.Location));
-			Descend(".", file => {
-				if (!Path.GetExtension(file).Equals(".dll", StringComparison.OrdinalIgnoreCase))
-					return;
-				compilation = compilation.AddReferences(MetadataReference.CreateFromFile(file));
-			});
-
 			// Source files
-			List<SyntaxTree> trees = new();
+			var compilation = CSharpCompilation.Create(null);
+			var trees = new List<SyntaxTree>();
 			Descend(".", file => {
 				if (!Path.GetExtension(file).Equals(".cs", StringComparison.OrdinalIgnoreCase))
 					return;
