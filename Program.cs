@@ -23,17 +23,6 @@ static class Program {
 		}
 	}
 
-	static void Exec(string program, string args) {
-		Console.WriteLine($"{program} {args}");
-		var process = new Process();
-		process.StartInfo.FileName = program;
-		process.StartInfo.Arguments = args;
-		process.Start();
-		process.WaitForExit();
-		if (0 != process.ExitCode)
-			Environment.Exit(process.ExitCode);
-	}
-
 	static void Help() {
 		var name = typeof(Program).Assembly.GetName().Name;
 		Console.WriteLine($"{name} without args, expects C# project in current directory");
@@ -41,6 +30,11 @@ static class Program {
 		Console.WriteLine("Options:");
 		Console.WriteLine("-h  Show help");
 		Console.WriteLine("-V  Show version");
+	}
+
+	static void Indent(int n) {
+		while (0 < n--)
+			Console.Write("  ");
 	}
 
 	static void Main(string[] args) {
@@ -73,10 +67,7 @@ static class Program {
 			// Project
 			var projectName = Path.GetFileNameWithoutExtension(ProjectFile());
 
-			// Build
-			Exec("dotnet", "clean /p:Configuration=Release /p:Platform=\"Any CPU\"");
-
-			// References
+			// Reference DLLs
 			var compilation =
 				CSharpCompilation.Create(null).AddReferences(MetadataReference.CreateFromFile(typeof(object).Assembly.Location));
 			Descend(".", file => {
@@ -107,89 +98,23 @@ static class Program {
 				new ClassWalker(model).Visit(root);
 			}
 
-			// HTML
-			Html.Open(Path.Combine("bin", projectName + "-call-graph.html"));
-
-			Html.WriteLine("<!DOCTYPE html>");
-			Html.WriteLine("<html lang=\"en\">");
-			Html.WriteLine("<meta charset=\"utf-8\">");
-
-			Html.Write("<title>");
-			Html.Write(projectName);
-			Html.Write(" call graph");
-			Html.WriteLine("</title>");
-
-			// Contents
-			Html.Header(1, "contents");
-			Html.WriteLine("<ul>");
-
-			Html.Write("<li>");
-			Html.Link("contents");
-
-			Html.Write("<li>");
-			Html.Link("classes");
-
-			Html.Write("<li>");
-			Html.Link("methods");
-
-			Html.Write("<li>");
-			Html.Link("shallow calls");
-
-			Html.WriteLine("</ul>");
-
-			// Classes
-			Html.Header(1, "classes");
-			Html.WriteLine("<ul>");
+			// Output
 			foreach (var c in Class.Classes) {
-				Html.Write("<li>");
-				Html.Link(c.WithBases());
-			}
-			Html.WriteLine("</ul>");
-
-			// Methods
-			Html.Header(1, "methods");
-			Html.WriteLine("<ul>");
-			foreach (var c in Class.Classes) {
-				Html.Write("<li>");
-				Html.Link(c.ToString());
+				Console.WriteLine(c.WithBases());
 
 				var methods = c.Node.Members.OfType<BaseMethodDeclarationSyntax>();
-				Html.WriteLine("<ul>");
 				foreach (var method in methods) {
-					Html.Write("<li>");
-					Html.Link(Etc.Signature(method));
-				}
-				Html.WriteLine("</ul>");
-			}
-			Html.WriteLine("</ul>");
-
-			// Shallow calls
-			Html.Header(1, "shallow calls");
-			Html.WriteLine("<ul>");
-			foreach (var c in Class.Classes) {
-				Html.Write("<li>");
-				Html.Link(c.ToString());
-
-				var methods = c.Node.Members.OfType<BaseMethodDeclarationSyntax>();
-				Html.WriteLine("<ul>");
-				foreach (var method in methods) {
-					Html.Write("<li>");
-					Html.Link(Etc.Signature(method));
+					Indent(1);
+					Console.WriteLine(Etc.Signature(method));
 
 					var walker = new CalleeWalker(c.Model);
 					walker.Visit(method);
-					Html.WriteLine("<ul>");
 					foreach (var callee in walker.Callees) {
-						Html.Write("<li>");
-						Html.WriteLine(callee);
+						Indent(2);
+						Console.WriteLine(callee);
 					}
-					Html.WriteLine("</ul>");
 				}
-				Html.WriteLine("</ul>");
 			}
-			Html.WriteLine("</ul>");
-
-			Html.Close();
 		} catch (Error e) {
 			Console.Error.WriteLine(e.Message);
 			Environment.Exit(1);
