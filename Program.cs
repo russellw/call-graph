@@ -95,12 +95,14 @@ static class Program {
 				foreach (var node in root.ChildNodes())
 					switch (node) {
 					case ClassDeclarationSyntax classDeclaration:
-						if (classDeclaration.Modifiers.Any()) {
-							Console.Write(string.Join(' ', classDeclaration.Modifiers));
-							Console.Write(' ');
-						}
+						Modifiers(classDeclaration);
 						Console.Write("class ");
 						TypeDeclaration(model, classDeclaration);
+						break;
+					case StructDeclarationSyntax structDeclaration:
+						Modifiers(structDeclaration);
+						Console.Write("struct ");
+						TypeDeclaration(model, structDeclaration);
 						break;
 					}
 			}
@@ -108,6 +110,14 @@ static class Program {
 			Console.Error.WriteLine(e.Message);
 			Environment.Exit(1);
 		}
+	}
+
+	static void Modifiers(TypeDeclarationSyntax node) {
+		if (node.Modifiers.Any())
+			foreach (var modifier in node.Modifiers) {
+				Console.Write(modifier);
+				Console.Write(' ');
+			}
 	}
 
 	static void TypeDeclaration(SemanticModel model, TypeDeclarationSyntax node) {
