@@ -37,7 +37,7 @@ static class Etc {
 			throw new NotImplementedException(baseMethod.ToString());
 		}
 		if (baseMethod.Modifiers.Any()) {
-			var modifiers = string.Join(" ", baseMethod.Modifiers.Select(m => m.Text));
+			var modifiers = string.Join(" ", baseMethod.Modifiers);
 			return $"{modifiers} {s}";
 		}
 		return s;
