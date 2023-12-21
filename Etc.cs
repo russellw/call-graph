@@ -1,4 +1,5 @@
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 
 static class Etc {
@@ -6,8 +7,14 @@ static class Etc {
 		Console.Error.WriteLine($"{file}:{line}: {a}");
 	}
 
+	public static void Print<T>(ImmutableArray<T> a, [CallerFilePath] string file = "", [CallerLineNumber] int line = 0) {
+		var s = string.Join(", ", a);
+		Console.Error.WriteLine($"{file}:{line}: [{s}]");
+	}
+
 	public static void Print<T>(List<T> a, [CallerFilePath] string file = "", [CallerLineNumber] int line = 0) {
-		Console.Error.WriteLine("{0}:{1}: [{2}]", file, line, string.Join(", ", a));
+		var s = string.Join(", ", a);
+		Console.Error.WriteLine($"{file}:{line}: [{s}]");
 	}
 
 	public static string Signature(BaseMethodDeclarationSyntax baseMethod) {

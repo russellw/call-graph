@@ -11,8 +11,23 @@ sealed class CalleeWalker: CSharpSyntaxWalker {
 
 	public override void VisitInvocationExpression(InvocationExpressionSyntax node) {
 		base.VisitInvocationExpression(node);
-		Callees.Add(node.Expression.ToString());
+
+		var method = Callee(node);
+		if (method == null)
+			return;
+		Callees.Add(method.ToString()!);
 	}
 
 	readonly SemanticModel model;
+
+	ISymbol? Callee(InvocationExpressionSyntax node) {
+		var info = model.GetSymbolInfo(node);
+		if (info.Symbol != null)
+			return info.Symbol;
+		Etc.Print(node);
+		Etc.Print(info.CandidateSymbols);
+		Etc.Print(info.CandidateReason);
+		Console.Error.WriteLine();
+		return null;
+	}
 }

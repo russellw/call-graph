@@ -97,11 +97,15 @@ static class Program {
 						Console.Error.WriteLine(diagnostic);
 					Environment.Exit(1);
 				}
+				compilation = compilation.AddSyntaxTrees(tree);
 				trees.Add(tree);
-				var root = tree.GetCompilationUnitRoot();
-				var model = compilation.AddSyntaxTrees(tree).GetSemanticModel(tree);
-				new ClassWalker(model).Visit(root);
 			});
+
+			foreach (var tree in trees) {
+				var root = tree.GetCompilationUnitRoot();
+				var model = compilation.GetSemanticModel(tree);
+				new ClassWalker(model).Visit(root);
+			}
 
 			// HTML
 			Html.Open(Path.Combine("bin", projectName + "-call-graph.html"));
