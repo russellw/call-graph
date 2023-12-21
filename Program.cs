@@ -88,32 +88,42 @@ static class Program {
 				trees.Add(tree);
 			});
 
-			foreach (var tree in trees) {
-				var root = tree.GetCompilationUnitRoot();
-				var model = compilation.GetSemanticModel(tree);
-				new ClassWalker(model).Visit(root);
-			}
-
 			// Output
-			foreach (var c in Class.Classes) {
-				Console.WriteLine(c.WithBases());
-
-				var methods = c.Node.Members.OfType<BaseMethodDeclarationSyntax>();
-				foreach (var method in methods) {
-					Indent(1);
-					Console.WriteLine(Etc.Signature(method));
-
-					var walker = new CalleeWalker(c.Model);
-					walker.Visit(method);
-					foreach (var callee in walker.Callees) {
-						Indent(2);
-						Console.WriteLine(callee);
+			foreach (var tree in trees) {
+				var model = compilation.GetSemanticModel(tree);
+				var root = tree.GetCompilationUnitRoot();
+				foreach (var node in root.ChildNodes())
+					switch (node) {
+					case ClassDeclarationSyntax classDeclaration:
+						if (classDeclaration.Modifiers.Any()) {
+							Console.Write(string.Join(' ', classDeclaration.Modifiers));
+							Console.Write(' ');
+						}
+						Console.Write("class ");
+						TypeDeclaration(model, classDeclaration);
+						break;
 					}
-				}
 			}
 		} catch (Error e) {
 			Console.Error.WriteLine(e.Message);
 			Environment.Exit(1);
+		}
+	}
+
+	static void TypeDeclaration(SemanticModel model, TypeDeclarationSyntax node) {
+		Console.Write(node.Identifier);
+		Console.WriteLine(node.BaseList);
+		var methods = node.Members.OfType<BaseMethodDeclarationSyntax>();
+		foreach (var method in methods) {
+			Indent(1);
+			Console.WriteLine(Etc.Signature(method));
+
+			var walker = new CalleeWalker(model);
+			walker.Visit(method);
+			foreach (var callee in walker.Callees) {
+				Indent(2);
+				Console.WriteLine(callee);
+			}
 		}
 	}
 
