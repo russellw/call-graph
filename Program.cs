@@ -64,9 +64,6 @@ static class Program {
 				return;
 			}
 
-			// Project
-			var projectName = Path.GetFileNameWithoutExtension(ProjectFile());
-
 			// Reference DLLs
 			var compilation =
 				CSharpCompilation.Create(null).AddReferences(MetadataReference.CreateFromFile(typeof(object).Assembly.Location));
@@ -119,13 +116,6 @@ static class Program {
 			Console.Error.WriteLine(e.Message);
 			Environment.Exit(1);
 		}
-	}
-
-	static string ProjectFile() {
-		foreach (var entry in new DirectoryInfo(".").EnumerateFileSystemInfos())
-			if (Path.GetExtension(entry.Name).Equals(".csproj", StringComparison.OrdinalIgnoreCase))
-				return entry.Name;
-		throw new Error(".csproj file not found");
 	}
 
 	static void Version() {
