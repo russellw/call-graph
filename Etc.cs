@@ -51,8 +51,9 @@ static class Etc {
 
 	public static string Signature(IMethodSymbol method) {
 		var returnType = method.ReturnType;
+		var containingType = method.ContainingType;
 		var name = method.Name;
 		var parameters = string.Join(", ", method.Parameters.Select(p => $"{p.Type} {p.Name}"));
-		return $"{returnType} {name}({parameters})";
+		return $"{returnType} {containingType}.{name}({parameters})";
 	}
 }
