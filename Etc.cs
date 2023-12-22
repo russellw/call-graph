@@ -4,19 +4,6 @@ using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 
 static class Etc {
-	public static string Name(ITypeSymbol type) {
-		if (type is INamedTypeSymbol namedType && namedType.ContainingType != null)
-			return $"{namedType.ContainingType.Name}.{namedType.Name}";
-		return type.ToString()!;
-	}
-
-	public static string Name(TypeSyntax type, SemanticModel model) {
-		var symbol = model.GetSymbolInfo(type).Symbol;
-		if (null == symbol)
-			return type.ToString();
-		return Name((ITypeSymbol)symbol);
-	}
-
 	public static void Print(object a, [CallerFilePath] string file = "", [CallerLineNumber] int line = 0) {
 		Console.Error.WriteLine($"{file}:{line}: {a}");
 	}
@@ -53,5 +40,18 @@ static class Etc {
 		var name = method.Name;
 		var parameters = string.Join(", ", method.Parameters.Select(p => $"{p.Type} {p.Name}"));
 		return $"{containingType}.{name}({parameters})";
+	}
+
+	static string Name(ITypeSymbol type) {
+		if (type is INamedTypeSymbol namedType && namedType.ContainingType != null)
+			return $"{namedType.ContainingType.Name}.{namedType.Name}";
+		return type.ToString()!;
+	}
+
+	static string Name(TypeSyntax type, SemanticModel model) {
+		var symbol = model.GetSymbolInfo(type).Symbol;
+		if (null == symbol)
+			return type.ToString();
+		return Name((ITypeSymbol)symbol);
 	}
 }
