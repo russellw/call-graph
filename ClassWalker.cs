@@ -23,41 +23,76 @@ sealed class ClassWalker: CSharpSyntaxWalker {
 		base.VisitStructDeclaration(node);
 	}
 
+	Dictionary<BaseMethodDeclarationSyntax, OrderedSet<string>> callees = new();
 	readonly SemanticModel model;
+
+	int Callers(BaseMethodDeclarationSyntax callee) {
+		var s = Etc.Signature(callee, model);
+		var n = 0;
+		foreach (var entry in callees)
+			if (entry.Value.Contains(s))
+				n++;
+		return n;
+	}
 
 	static void Indent(int n) {
 		while (0 != n--)
 			Console.Write("  ");
 	}
 
-	static void Modifiers(MemberDeclarationSyntax node) {
-		foreach (var modifier in node.Modifiers) {
+	void Method(int level, BaseMethodDeclarationSyntax baseMethod) {
+		Indent(level);
+		Modifiers(baseMethod);
+		switch (baseMethod) {
+		case MethodDeclarationSyntax method:
+			Console.Write(method.ReturnType);
+			Console.Write(' ');
+			break;
+		}
+		Console.WriteLine(Etc.Signature(baseMethod, model));
+		if (!TopLevel(baseMethod))
+			foreach (var callee in callees[baseMethod])
+				Method(level + 1, callee);
+	}
+
+	static void Modifiers(MemberDeclarationSyntax member) {
+		foreach (var modifier in member.Modifiers) {
 			Console.Write(modifier);
 			Console.Write(' ');
 		}
 	}
 
-	static void TypeDeclaration(TypeDeclarationSyntax node, SemanticModel model) {
+	static bool Private(MemberDeclarationSyntax member) {
+		foreach (var modifier in member.Modifiers)
+			switch (modifier.Kind()) {
+			case SyntaxKind.InternalKeyword:
+			case SyntaxKind.ProtectedKeyword:
+			case SyntaxKind.PublicKeyword:
+				return false;
+			}
+		return true;
+	}
+
+	bool TopLevel(BaseMethodDeclarationSyntax baseMethod) {
+		if (!Private(baseMethod))
+			return true;
+		return 1 < Callers(baseMethod);
+	}
+
+	void TypeDeclaration(TypeDeclarationSyntax node, SemanticModel model) {
 		Console.Write(node.Identifier);
 		Console.WriteLine(node.BaseList);
 		var methods = node.Members.OfType<BaseMethodDeclarationSyntax>();
-		foreach (var baseMethod in methods) {
-			Indent(1);
-			Modifiers(baseMethod);
-			switch (baseMethod) {
-			case MethodDeclarationSyntax method:
-				Console.Write(method.ReturnType);
-				Console.Write(' ');
-				break;
-			}
-			Console.WriteLine(Etc.Signature(baseMethod, model));
 
+		callees.Clear();
+		foreach (var baseMethod in methods) {
 			var walker = new CalleeWalker(model);
 			walker.Visit(baseMethod);
-			foreach (var callee in walker.Callees) {
-				Indent(2);
-				Console.WriteLine(callee);
-			}
+			callees.Add(baseMethod, walker.Callees);
 		}
+
+		foreach (var baseMethod in methods)
+			if (TopLevel(baseMethod))
+				Method(1, baseMethod);
 	}
 }
