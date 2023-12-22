@@ -115,13 +115,19 @@ static class Program {
 		Console.Write(node.Identifier);
 		Console.WriteLine(node.BaseList);
 		var methods = node.Members.OfType<BaseMethodDeclarationSyntax>();
-		foreach (var method in methods) {
+		foreach (var baseMethod in methods) {
 			Indent(1);
-			Modifiers(method);
-			Console.WriteLine(Etc.Signature(method, model));
+			Modifiers(baseMethod);
+			switch (baseMethod) {
+			case MethodDeclarationSyntax method:
+				Console.Write(method.ReturnType);
+				Console.Write(' ');
+				break;
+			}
+			Console.WriteLine(Etc.Signature(baseMethod, model));
 
 			var walker = new CalleeWalker(model);
-			walker.Visit(method);
+			walker.Visit(baseMethod);
 			foreach (var callee in walker.Callees) {
 				Indent(2);
 				Console.WriteLine(callee);

@@ -40,9 +40,8 @@ static class Etc {
 			return $"{name}({parameters})";
 		}
 		case MethodDeclarationSyntax method: {
-			var returnType = method.ReturnType;
 			var name = method.Identifier;
-			return $"{returnType} {name}({parameters})";
+			return $"{name}({parameters})";
 		}
 		default:
 			throw new NotImplementedException(baseMethod.ToString());
@@ -50,10 +49,9 @@ static class Etc {
 	}
 
 	public static string Signature(IMethodSymbol method) {
-		var returnType = method.ReturnType;
 		var containingType = method.ContainingType;
 		var name = method.Name;
 		var parameters = string.Join(", ", method.Parameters.Select(p => $"{p.Type} {p.Name}"));
-		return $"{returnType} {containingType}.{name}({parameters})";
+		return $"{containingType}.{name}({parameters})";
 	}
 }
