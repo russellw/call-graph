@@ -22,17 +22,12 @@ static class Etc {
 		var parameters =
 			string.Join(", ", baseMethod.ParameterList.Parameters.Select(p => $"{Name(p.Type!, model)} {p.Identifier}"));
 		switch (baseMethod) {
-		case ConstructorDeclarationSyntax constructor: {
-			var name = constructor.Identifier;
-			return $"{name}({parameters})";
+		case ConstructorDeclarationSyntax constructor:
+			return $"{constructor.Identifier}({parameters})";
+		case MethodDeclarationSyntax method:
+			return $"{method.Identifier}({parameters})";
 		}
-		case MethodDeclarationSyntax method: {
-			var name = method.Identifier;
-			return $"{name}({parameters})";
-		}
-		default:
-			throw new NotImplementedException(baseMethod.ToString());
-		}
+		throw new NotImplementedException(baseMethod.ToString());
 	}
 
 	public static string Signature(IMethodSymbol method) {

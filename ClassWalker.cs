@@ -27,6 +27,20 @@ sealed class ClassWalker: CSharpSyntaxWalker {
 	readonly SemanticModel model;
 	readonly Dictionary<string, BaseMethodDeclarationSyntax> signatureMethods = new();
 
+	void Callees(int level, BaseMethodDeclarationSyntax baseMethod) {
+		level++;
+		foreach (var s in callees[baseMethod]) {
+			if (signatureMethods.TryGetValue(s, out var callee)) {
+				Declare(level, callee);
+				if (!TopLevel(callee))
+					Callees(level, callee);
+				continue;
+			}
+			Indent(level);
+			Console.WriteLine(s);
+		}
+	}
+
 	int Callers(BaseMethodDeclarationSyntax callee) {
 		var s = Etc.Signature(callee, model);
 		var n = 0;
@@ -36,13 +50,7 @@ sealed class ClassWalker: CSharpSyntaxWalker {
 		return n;
 	}
 
-	static void Indent(int n) {
-		while (0 != n--)
-			Console.Write("  ");
-	}
-
-	void Method(int level, BaseMethodDeclarationSyntax baseMethod) {
-		// Signature
+	void Declare(int level, BaseMethodDeclarationSyntax baseMethod) {
 		Indent(level);
 		Modifiers(baseMethod);
 		switch (baseMethod) {
@@ -52,11 +60,11 @@ sealed class ClassWalker: CSharpSyntaxWalker {
 			break;
 		}
 		Console.WriteLine(Etc.Signature(baseMethod, model));
+	}
 
-		// Callees
-		foreach (var s in callees[baseMethod]) {
-			Method(level + 1, callee);
-		}
+	static void Indent(int n) {
+		while (0 != n--)
+			Console.Write("    ");
 	}
 
 	static void Modifiers(MemberDeclarationSyntax member) {
@@ -80,7 +88,11 @@ sealed class ClassWalker: CSharpSyntaxWalker {
 	bool TopLevel(BaseMethodDeclarationSyntax baseMethod) {
 		if (!Private(baseMethod))
 			return true;
-		return 1 < Callers(baseMethod);
+		if (1 < Callers(baseMethod))
+			return true;
+		if (baseMethod is MethodDeclarationSyntax method && "Main" == method.Identifier.Text)
+			return true;
+		return false;
 	}
 
 	void TypeDeclaration(TypeDeclarationSyntax node, SemanticModel model) {
@@ -100,7 +112,9 @@ sealed class ClassWalker: CSharpSyntaxWalker {
 
 		// Output
 		foreach (var baseMethod in methods)
-			if (TopLevel(baseMethod))
-				Method(1, baseMethod);
+			if (TopLevel(baseMethod)) {
+				Declare(1, baseMethod);
+				Callees(1, baseMethod);
+			}
 	}
 }
