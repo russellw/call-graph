@@ -1,8 +1,20 @@
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 
 static class Etc {
+	public static string Name(ITypeSymbol type) {
+		if (type is INamedTypeSymbol namedType && namedType.ContainingType != null)
+			return $"{namedType.ContainingType.Name}.{namedType.Name}";
+		return type.ToString()!;
+	}
+
+	public static string Name(TypeSyntax type, SemanticModel model) {
+		var symbol = model.GetSymbolInfo(type).Symbol ?? throw new Exception(type.ToString());
+		return Name((ITypeSymbol)symbol);
+	}
+
 	public static void Print(object a, [CallerFilePath] string file = "", [CallerLineNumber] int line = 0) {
 		Console.Error.WriteLine($"{file}:{line}: {a}");
 	}
@@ -17,29 +29,28 @@ static class Etc {
 		Console.Error.WriteLine($"{file}:{line}: [{s}]");
 	}
 
-	public static string Signature(BaseMethodDeclarationSyntax baseMethod) {
-		string s;
+	public static string Signature(BaseMethodDeclarationSyntax baseMethod, SemanticModel model) {
+		var parameters =
+			string.Join(", ", baseMethod.ParameterList.Parameters.Select(p => $"{Name(p.Type!,model)} {p.Identifier}"));
 		switch (baseMethod) {
 		case ConstructorDeclarationSyntax constructor: {
 			var name = constructor.Identifier;
-			var parameters = baseMethod.ParameterList;
-			s = $"{name}{parameters}";
-			break;
+			return $"{name}{parameters}";
 		}
 		case MethodDeclarationSyntax method: {
 			var returnType = method.ReturnType;
 			var name = method.Identifier;
-			var parameters = baseMethod.ParameterList;
-			s = $"{returnType} {name}{parameters}";
-			break;
+			return $"{returnType} {name}({parameters})";
 		}
 		default:
 			throw new NotImplementedException(baseMethod.ToString());
 		}
-		if (baseMethod.Modifiers.Any()) {
-			var modifiers = string.Join(" ", baseMethod.Modifiers);
-			return $"{modifiers} {s}";
-		}
-		return s;
+	}
+
+	public static string Signature(IMethodSymbol method) {
+		var returnType = method.ReturnType;
+		var name = method.Name;
+		var parameters = string.Join(", ", method.Parameters.Select(p => $"{p.Type} {p.Name}"));
+		return $"{returnType} {name}({parameters})";
 	}
 }

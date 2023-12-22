@@ -104,12 +104,11 @@ static class Program {
 		}
 	}
 
-	static void Modifiers(TypeDeclarationSyntax node) {
-		if (node.Modifiers.Any())
-			foreach (var modifier in node.Modifiers) {
-				Console.Write(modifier);
-				Console.Write(' ');
-			}
+	static void Modifiers(MemberDeclarationSyntax node) {
+		foreach (var modifier in node.Modifiers) {
+			Console.Write(modifier);
+			Console.Write(' ');
+		}
 	}
 
 	static void TypeDeclaration(SemanticModel model, TypeDeclarationSyntax node) {
@@ -118,7 +117,8 @@ static class Program {
 		var methods = node.Members.OfType<BaseMethodDeclarationSyntax>();
 		foreach (var method in methods) {
 			Indent(1);
-			Console.WriteLine(Etc.Signature(method));
+			Modifiers(method);
+			Console.WriteLine(Etc.Signature(method, model));
 
 			var walker = new CalleeWalker(model);
 			walker.Visit(method);
