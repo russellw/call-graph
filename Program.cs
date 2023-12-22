@@ -30,11 +30,6 @@ static class Program {
 		Console.WriteLine("-V  Show version");
 	}
 
-	static void Indent(int n) {
-		while (0 != n--)
-			Console.Write("  ");
-	}
-
 	static void Main(string[] args) {
 		try {
 			// Command line
@@ -87,54 +82,11 @@ static class Program {
 			foreach (var tree in trees) {
 				var model = compilation.GetSemanticModel(tree);
 				var root = tree.GetCompilationUnitRoot();
-				foreach (var node in root.ChildNodes())
-					switch (node) {
-					case ClassDeclarationSyntax classDeclaration:
-						Modifiers(classDeclaration);
-						Console.Write("class ");
-						TypeDeclaration(classDeclaration, model);
-						break;
-					case StructDeclarationSyntax structDeclaration:
-						Modifiers(structDeclaration);
-						Console.Write("struct ");
-						TypeDeclaration(structDeclaration, model);
-						break;
-					}
+				new ClassWalker(model).Visit(root);
 			}
 		} catch (Error e) {
 			Console.Error.WriteLine(e.Message);
 			Environment.Exit(1);
-		}
-	}
-
-	static void Modifiers(MemberDeclarationSyntax node) {
-		foreach (var modifier in node.Modifiers) {
-			Console.Write(modifier);
-			Console.Write(' ');
-		}
-	}
-
-	static void TypeDeclaration(TypeDeclarationSyntax node, SemanticModel model) {
-		Console.Write(node.Identifier);
-		Console.WriteLine(node.BaseList);
-		var methods = node.Members.OfType<BaseMethodDeclarationSyntax>();
-		foreach (var baseMethod in methods) {
-			Indent(1);
-			Modifiers(baseMethod);
-			switch (baseMethod) {
-			case MethodDeclarationSyntax method:
-				Console.Write(method.ReturnType);
-				Console.Write(' ');
-				break;
-			}
-			Console.WriteLine(Etc.Signature(baseMethod, model));
-
-			var walker = new CalleeWalker(model);
-			walker.Visit(baseMethod);
-			foreach (var callee in walker.Callees) {
-				Indent(2);
-				Console.WriteLine(callee);
-			}
 		}
 	}
 
