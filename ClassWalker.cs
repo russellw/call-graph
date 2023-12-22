@@ -26,8 +26,11 @@ sealed class ClassWalker: CSharpSyntaxWalker {
 	readonly Dictionary<BaseMethodDeclarationSyntax, OrderedSet<string>> callees = new();
 	readonly SemanticModel model;
 	readonly Dictionary<string, BaseMethodDeclarationSyntax> signatureMethods = new();
+	readonly HashSet<string> visited = new();
 
 	void Callees(int level, BaseMethodDeclarationSyntax baseMethod) {
+		if (!visited.Add(Etc.Signature(baseMethod, model)))
+			return;
 		level++;
 		foreach (var s in callees[baseMethod]) {
 			if (signatureMethods.TryGetValue(s, out var callee)) {
@@ -104,15 +107,20 @@ sealed class ClassWalker: CSharpSyntaxWalker {
 		callees.Clear();
 		signatureMethods.Clear();
 		foreach (var baseMethod in methods) {
+			// Callees
 			var walker = new CalleeWalker(model);
 			walker.Visit(baseMethod);
 			callees.Add(baseMethod, walker.Callees);
-			signatureMethods.Add(Etc.Signature(baseMethod, model), baseMethod);
+
+			// Signature
+			var signature = Etc.Signature(baseMethod, model);
+			signatureMethods.Add($"{node.Identifier}.{signature}", baseMethod);
 		}
 
 		// Output
 		foreach (var baseMethod in methods)
 			if (TopLevel(baseMethod)) {
+				visited.Clear();
 				Declare(1, baseMethod);
 				Callees(1, baseMethod);
 			}
