@@ -23,8 +23,9 @@ sealed class ClassWalker: CSharpSyntaxWalker {
 		base.VisitStructDeclaration(node);
 	}
 
-	Dictionary<BaseMethodDeclarationSyntax, OrderedSet<string>> callees = new();
+	readonly Dictionary<BaseMethodDeclarationSyntax, OrderedSet<string>> callees = new();
 	readonly SemanticModel model;
+	readonly Dictionary<string, BaseMethodDeclarationSyntax> signatureMethods = new();
 
 	int Callers(BaseMethodDeclarationSyntax callee) {
 		var s = Etc.Signature(callee, model);
@@ -41,6 +42,7 @@ sealed class ClassWalker: CSharpSyntaxWalker {
 	}
 
 	void Method(int level, BaseMethodDeclarationSyntax baseMethod) {
+		// Signature
 		Indent(level);
 		Modifiers(baseMethod);
 		switch (baseMethod) {
@@ -50,9 +52,11 @@ sealed class ClassWalker: CSharpSyntaxWalker {
 			break;
 		}
 		Console.WriteLine(Etc.Signature(baseMethod, model));
-		if (!TopLevel(baseMethod))
-			foreach (var callee in callees[baseMethod])
-				Method(level + 1, callee);
+
+		// Callees
+		foreach (var s in callees[baseMethod]) {
+			Method(level + 1, callee);
+		}
 	}
 
 	static void Modifiers(MemberDeclarationSyntax member) {
@@ -84,13 +88,17 @@ sealed class ClassWalker: CSharpSyntaxWalker {
 		Console.WriteLine(node.BaseList);
 		var methods = node.Members.OfType<BaseMethodDeclarationSyntax>();
 
+		// Cache lookups
 		callees.Clear();
+		signatureMethods.Clear();
 		foreach (var baseMethod in methods) {
 			var walker = new CalleeWalker(model);
 			walker.Visit(baseMethod);
 			callees.Add(baseMethod, walker.Callees);
+			signatureMethods.Add(Etc.Signature(baseMethod, model), baseMethod);
 		}
 
+		// Output
 		foreach (var baseMethod in methods)
 			if (TopLevel(baseMethod))
 				Method(1, baseMethod);
