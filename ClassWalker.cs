@@ -24,6 +24,7 @@ sealed class ClassWalker: CSharpSyntaxWalker {
 	}
 
 	readonly Dictionary<BaseMethodDeclarationSyntax, OrderedSet<string>> callees = new();
+	string containingType = null!;
 	readonly SemanticModel model;
 	readonly Dictionary<string, BaseMethodDeclarationSyntax> signatureMethods = new();
 	readonly HashSet<string> visited = new();
@@ -32,23 +33,23 @@ sealed class ClassWalker: CSharpSyntaxWalker {
 		if (!visited.Add(Etc.Signature(baseMethod, model)))
 			return;
 		level++;
-		foreach (var s in callees[baseMethod]) {
-			if (signatureMethods.TryGetValue(s, out var callee)) {
+		foreach (var signature in callees[baseMethod]) {
+			if (signatureMethods.TryGetValue(signature, out var callee)) {
 				Declare(level, callee);
 				if (!TopLevel(callee))
 					Callees(level, callee);
 				continue;
 			}
 			Indent(level);
-			Console.WriteLine(s);
+			Console.WriteLine(signature);
 		}
 	}
 
 	int Callers(BaseMethodDeclarationSyntax callee) {
-		var s = Etc.Signature(callee, model);
+		var signature = $"{containingType}.{Etc.Signature(callee, model)}";
 		var n = 0;
 		foreach (var entry in callees)
-			if (entry.Value.Contains(s))
+			if (entry.Value.Contains(signature))
 				n++;
 		return n;
 	}
@@ -100,7 +101,8 @@ sealed class ClassWalker: CSharpSyntaxWalker {
 	}
 
 	void TypeDeclaration(TypeDeclarationSyntax node, SemanticModel model) {
-		Console.Write(node.Identifier);
+		containingType = node.Identifier.Text;
+		Console.Write(containingType);
 		Console.WriteLine(node.BaseList);
 		var methods = node.Members.OfType<BaseMethodDeclarationSyntax>();
 
@@ -114,8 +116,8 @@ sealed class ClassWalker: CSharpSyntaxWalker {
 			callees.Add(baseMethod, walker.Callees);
 
 			// Signature
-			var signature = Etc.Signature(baseMethod, model);
-			signatureMethods.Add($"{node.Identifier}.{signature}", baseMethod);
+			var signature = $"{containingType}.{Etc.Signature(baseMethod, model)}";
+			signatureMethods.Add(signature, baseMethod);
 		}
 
 		// Output
