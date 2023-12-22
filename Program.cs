@@ -89,12 +89,12 @@ static class Program {
 					case ClassDeclarationSyntax classDeclaration:
 						Modifiers(classDeclaration);
 						Console.Write("class ");
-						TypeDeclaration(model, classDeclaration);
+						TypeDeclaration(classDeclaration, model);
 						break;
 					case StructDeclarationSyntax structDeclaration:
 						Modifiers(structDeclaration);
 						Console.Write("struct ");
-						TypeDeclaration(model, structDeclaration);
+						TypeDeclaration(structDeclaration, model);
 						break;
 					}
 			}
@@ -111,7 +111,7 @@ static class Program {
 		}
 	}
 
-	static void TypeDeclaration(SemanticModel model, TypeDeclarationSyntax node) {
+	static void TypeDeclaration(TypeDeclarationSyntax node, SemanticModel model) {
 		Console.Write(node.Identifier);
 		Console.WriteLine(node.BaseList);
 		var methods = node.Members.OfType<BaseMethodDeclarationSyntax>();
