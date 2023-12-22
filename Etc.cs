@@ -11,7 +11,9 @@ static class Etc {
 	}
 
 	public static string Name(TypeSyntax type, SemanticModel model) {
-		var symbol = model.GetSymbolInfo(type).Symbol ?? throw new Exception(type.ToString());
+		var symbol = model.GetSymbolInfo(type).Symbol;
+		if (null == symbol)
+			return type.ToString();
 		return Name((ITypeSymbol)symbol);
 	}
 
@@ -31,11 +33,11 @@ static class Etc {
 
 	public static string Signature(BaseMethodDeclarationSyntax baseMethod, SemanticModel model) {
 		var parameters =
-			string.Join(", ", baseMethod.ParameterList.Parameters.Select(p => $"{Name(p.Type!,model)} {p.Identifier}"));
+			string.Join(", ", baseMethod.ParameterList.Parameters.Select(p => $"{Name(p.Type!, model)} {p.Identifier}"));
 		switch (baseMethod) {
 		case ConstructorDeclarationSyntax constructor: {
 			var name = constructor.Identifier;
-			return $"{name}{parameters}";
+			return $"{name}({parameters})";
 		}
 		case MethodDeclarationSyntax method: {
 			var returnType = method.ReturnType;
