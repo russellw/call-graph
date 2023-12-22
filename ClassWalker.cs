@@ -89,13 +89,14 @@ sealed class ClassWalker: CSharpSyntaxWalker {
 	}
 
 	bool TopLevel(BaseMethodDeclarationSyntax baseMethod) {
+		// A method is treated as top level, if it could have callers outside the class
 		if (!Private(baseMethod))
-			return true;
-		if (1 < Callers(baseMethod))
 			return true;
 		if (baseMethod is MethodDeclarationSyntax method && "Main" == method.Identifier.Text)
 			return true;
-		return false;
+
+		// Or has multiple callers inside
+		return 1 < Callers(baseMethod);
 	}
 
 	void TypeDeclaration(TypeDeclarationSyntax node, SemanticModel model) {
