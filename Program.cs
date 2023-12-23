@@ -83,7 +83,7 @@ static class Program {
 				var root = tree.GetCompilationUnitRoot();
 				new ClassWalker(model).Visit(root);
 			}
-		} catch (Error e) {
+		} catch (IOException e) {
 			Console.Error.WriteLine(e.Message);
 			Environment.Exit(1);
 		}

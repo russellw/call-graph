@@ -1,4 +1,4 @@
-﻿sealed class Error: Exception {
+﻿sealed class Error: IOException {
 	public Error(string message): base(message) {
 	}
 }
