@@ -81,7 +81,7 @@ static class Program {
 			foreach (var tree in trees) {
 				var model = compilation.GetSemanticModel(tree);
 				var root = tree.GetCompilationUnitRoot();
-				new ClassWalker(model).Visit(root);
+				new TypeWalker(model).Visit(root);
 			}
 		} catch (IOException e) {
 			Console.Error.WriteLine(e.Message);

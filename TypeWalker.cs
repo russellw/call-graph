@@ -2,8 +2,8 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-sealed class ClassWalker: CSharpSyntaxWalker {
-	public ClassWalker(SemanticModel model) {
+sealed class TypeWalker: CSharpSyntaxWalker {
+	public TypeWalker(SemanticModel model) {
 		this.model = model;
 	}
 
