@@ -56,7 +56,7 @@ static class Program {
 					Version();
 					return;
 				default:
-					throw new Error(arg + ": unknown option");
+					throw new IOException(arg + ": unknown option");
 				}
 			}
 			if (!paths.Any())
