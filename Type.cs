@@ -1,11 +1,9 @@
-﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-sealed class Type
-    {
-    TypeDeclarationSyntax node;
+sealed class Type {
+	public Type(TypeDeclarationSyntax node) {
+		this.node = node;
+	}
 
-    public Type(TypeDeclarationSyntax node)
-    {
-        this.node = node;
-    }
+	TypeDeclarationSyntax node;
 }
