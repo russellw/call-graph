@@ -69,11 +69,8 @@ static class Program {
 						return;
 					var text = File.ReadAllText(file);
 					var tree = CSharpSyntaxTree.ParseText(text, CSharpParseOptions.Default, file);
-					if (tree.GetDiagnostics().Any()) {
-						foreach (var diagnostic in tree.GetDiagnostics())
-							Console.Error.WriteLine(diagnostic);
-						Environment.Exit(1);
-					}
+					foreach (var diagnostic in tree.GetDiagnostics())
+						Console.Error.WriteLine(diagnostic);
 					compilation = compilation.AddSyntaxTrees(tree);
 					trees.Add(tree);
 				});
