@@ -10,11 +10,14 @@ sealed class Type {
 	static readonly Dictionary<string, Type> types = new();
 
 	readonly string key;
+	readonly List<Method> methods = new();
 	readonly TypeDeclarationSyntax typeDeclaration;
 
 	Type(TypeDeclarationSyntax typeDeclaration) {
 		this.typeDeclaration = typeDeclaration;
 		key = DottedName();
+		foreach (var baseMethod in typeDeclaration.Members.OfType<BaseMethodDeclarationSyntax>())
+			methods.Add(new Method(baseMethod));
 	}
 
 	string DottedName() {
