@@ -6,20 +6,22 @@ static class Program {
 	delegate void Callback(string file);
 
 	static void Descend(string path, Callback f) {
-		foreach (var entry in new DirectoryInfo(path).EnumerateFileSystemInfos()) {
-			if (entry is DirectoryInfo) {
-				switch (entry.Name) {
-				case "bin":
-				case "obj":
-					continue;
+		if (Directory.Exists(path)) {
+			foreach (var entry in new DirectoryInfo(path).EnumerateFileSystemInfos()) {
+				if (entry is DirectoryInfo) {
+					switch (entry.Name) {
+					case "bin":
+					case "obj":
+						continue;
+					}
+					if (entry.Name.StartsWith('.'))
+						continue;
 				}
-				if (entry.Name.StartsWith('.'))
-					continue;
 				Descend(entry.FullName, f);
-				continue;
 			}
-			f(entry.FullName);
+			return;
 		}
+		f(path);
 	}
 
 	static void Help() {
