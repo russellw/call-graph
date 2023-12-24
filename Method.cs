@@ -11,6 +11,7 @@ sealed class Method {
 	}
 
 	readonly BaseMethodDeclarationSyntax baseMethod;
+	readonly string key;
 
 	static void Indent(int n) {
 		while (0 != n--)
