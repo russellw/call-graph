@@ -13,7 +13,7 @@ sealed class Type {
 	}
 
 	public void Print() {
-		Modifiers(typeDeclaration);
+		Etc.Modifiers(typeDeclaration);
 		switch (typeDeclaration) {
 		case ClassDeclarationSyntax:
 			Console.Write("class ");
@@ -58,13 +58,6 @@ sealed class Type {
 			}
 			a = a.Parent;
 			parts.Add(name);
-		}
-	}
-
-	static void Modifiers(MemberDeclarationSyntax member) {
-		foreach (var modifier in member.Modifiers) {
-			Console.Write(modifier);
-			Console.Write(' ');
 		}
 	}
 }

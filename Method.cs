@@ -5,5 +5,9 @@ sealed class Method {
 		this.baseMethod = baseMethod;
 	}
 
+	public void Print() {
+		Etc.Modifiers(baseMethod);
+	}
+
 	readonly BaseMethodDeclarationSyntax baseMethod;
 }
