@@ -2,6 +2,8 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 sealed class Type {
+	public static readonly List<Type> types = new();
+
 	public static void Add(TypeDeclarationSyntax typeDeclaration) {
 		switch (typeDeclaration) {
 		case ClassDeclarationSyntax:
@@ -9,7 +11,13 @@ sealed class Type {
 			return;
 		}
 		var type = new Type(typeDeclaration);
-		types.Add(type.key, type);
+		typeDictionary.Add(type.key, type);
+		types.Add(type);
+	}
+
+	public void AddMethods() {
+		foreach (var baseMethod in typeDeclaration.Members.OfType<BaseMethodDeclarationSyntax>())
+			methods.Add(new Method(baseMethod));
 	}
 
 	public void Print() {
@@ -27,7 +35,7 @@ sealed class Type {
 		Console.WriteLine(key);
 	}
 
-	static readonly Dictionary<string, Type> types = new();
+	static readonly Dictionary<string, Type> typeDictionary = new();
 
 	readonly string key;
 	readonly List<Method> methods = new();
@@ -36,8 +44,6 @@ sealed class Type {
 	Type(TypeDeclarationSyntax typeDeclaration) {
 		this.typeDeclaration = typeDeclaration;
 		key = DottedName();
-		foreach (var baseMethod in typeDeclaration.Members.OfType<BaseMethodDeclarationSyntax>())
-			methods.Add(new Method(baseMethod));
 	}
 
 	string DottedName() {
