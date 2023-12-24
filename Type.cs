@@ -3,8 +3,28 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 sealed class Type {
 	public static void Add(TypeDeclarationSyntax typeDeclaration) {
+		switch (typeDeclaration) {
+		case ClassDeclarationSyntax:
+		case StructDeclarationSyntax:
+			return;
+		}
 		var type = new Type(typeDeclaration);
 		types.Add(type.key, type);
+	}
+
+	public void Print() {
+		Modifiers(typeDeclaration);
+		switch (typeDeclaration) {
+		case ClassDeclarationSyntax:
+			Console.Write("class ");
+			break;
+		case StructDeclarationSyntax:
+			Console.Write("struct ");
+			break;
+		default:
+			throw new NotImplementedException(key);
+		}
+		Console.WriteLine(key);
 	}
 
 	static readonly Dictionary<string, Type> types = new();
@@ -38,6 +58,13 @@ sealed class Type {
 			}
 			a = a.Parent;
 			parts.Add(name);
+		}
+	}
+
+	static void Modifiers(MemberDeclarationSyntax member) {
+		foreach (var modifier in member.Modifiers) {
+			Console.Write(modifier);
+			Console.Write(' ');
 		}
 	}
 }
