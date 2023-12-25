@@ -66,25 +66,25 @@ sealed class TypeWalker: CSharpSyntaxWalker {
 		Console.WriteLine(Etc.Signature(baseMethod, model));
 	}
 
-	static void DottedName(SyntaxNode? node) {
+	static void Indent(int n) {
+		while (0 != n--)
+			Console.Write("    ");
+	}
+
+	static void ParentDot(SyntaxNode? node) {
 		switch (node) {
 		case BaseNamespaceDeclarationSyntax namespaceDeclaration:
-			DottedName(node.Parent);
+			ParentDot(node.Parent);
 			Console.Write(namespaceDeclaration.Name);
 			break;
 		case TypeDeclarationSyntax typeDeclaration:
-			DottedName(node.Parent);
+			ParentDot(node.Parent);
 			Console.Write(typeDeclaration.Identifier);
 			break;
 		default:
 			return;
 		}
 		Console.Write('.');
-	}
-
-	static void Indent(int n) {
-		while (0 != n--)
-			Console.Write("    ");
 	}
 
 	static bool Private(MemberDeclarationSyntax member) {
@@ -111,7 +111,7 @@ sealed class TypeWalker: CSharpSyntaxWalker {
 
 	void TypeDeclaration(TypeDeclarationSyntax node, SemanticModel model) {
 		containingType = node.Identifier.Text;
-		DottedName(node.Parent);
+		ParentDot(node.Parent);
 		Console.Write(node.Identifier);
 		Console.WriteLine(node.BaseList);
 		var methods = node.Members.OfType<BaseMethodDeclarationSyntax>();
