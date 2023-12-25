@@ -25,16 +25,16 @@ sealed class TypeWalker: CSharpSyntaxWalker {
 
 	readonly Dictionary<BaseMethodDeclarationSyntax, OrderedSet<string>> callees = new();
 	string containingType = null!;
+	readonly Dictionary<ISymbol, BaseMethodDeclarationSyntax> methodsDictionary = new();
 	readonly SemanticModel model;
-	readonly Dictionary<string, BaseMethodDeclarationSyntax> signatureMethods = new();
-	readonly HashSet<string> visited = new();
+	readonly HashSet<BaseMethodDeclarationSyntax> visited = new();
 
 	void Callees(int level, BaseMethodDeclarationSyntax baseMethod) {
-		if (!visited.Add(Etc.Signature(baseMethod, model)))
+		if (!visited.Add(baseMethod))
 			return;
 		level++;
 		foreach (var signature in callees[baseMethod]) {
-			if (signatureMethods.TryGetValue(signature, out var callee)) {
+			if (methodsDictionary.TryGetValue(signature, out var callee)) {
 				Declare(level, callee);
 				if (!TopLevel(callee))
 					Callees(level, callee);
@@ -116,18 +116,27 @@ sealed class TypeWalker: CSharpSyntaxWalker {
 		Console.WriteLine(node.BaseList);
 		var methods = node.Members.OfType<BaseMethodDeclarationSyntax>();
 
+		// Mostly we want to refer to methods as BaseMethodDeclarationSyntax
+		// but (InvocationExpressionSyntax, model) gives ISymbol
+		// so need to be able to convert back
+		// though only for methods in the current class
+		// being the only ones we need to do something more with
+		// than just report without further comment
+		methodsDictionary.Clear();
+		foreach (var method in methods)
+			methodsDictionary.Add(model.GetDeclaredSymbol(method)!, method);
+
 		// Cache lookups
 		callees.Clear();
-		signatureMethods.Clear();
-		foreach (var baseMethod in methods) {
+		foreach (var method in methods) {
 			// Callees
 			var walker = new CalleeWalker(model);
-			walker.Visit(baseMethod);
-			callees.Add(baseMethod, walker.Callees);
+			walker.Visit(method);
+			callees.Add(method, walker.Callees);
 
 			// Signature
-			var signature = $"{containingType}.{Etc.Signature(baseMethod, model)}";
-			signatureMethods.Add(signature, baseMethod);
+			var signature = $"{containingType}.{Etc.Signature(method, model)}";
+			methodsDictionary.Add(signature, method);
 		}
 
 		// Output
