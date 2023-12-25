@@ -66,24 +66,20 @@ sealed class TypeWalker: CSharpSyntaxWalker {
 		Console.WriteLine(Etc.Signature(baseMethod, model));
 	}
 
-	static string DottedName(SyntaxNode? node) {
-		var parts = new List<string>();
-		for (;;) {
-			string name;
-			switch (node) {
-			case BaseNamespaceDeclarationSyntax namespaceDeclaration:
-				name = namespaceDeclaration.Name.ToString();
-				break;
-			case TypeDeclarationSyntax typeDeclaration:
-				name = typeDeclaration.Identifier.ToString();
-				break;
-			default:
-				parts.Reverse();
-				return string.Join('.', parts);
-			}
-			node = node.Parent;
-			parts.Add(name);
+	static void DottedName(SyntaxNode? node) {
+		switch (node) {
+		case BaseNamespaceDeclarationSyntax namespaceDeclaration:
+			DottedName(node.Parent);
+			Console.Write(namespaceDeclaration.Name);
+			break;
+		case TypeDeclarationSyntax typeDeclaration:
+			DottedName(node.Parent);
+			Console.Write(typeDeclaration.Identifier);
+			break;
+		default:
+			return;
 		}
+		Console.Write('.');
 	}
 
 	static void Indent(int n) {
@@ -115,7 +111,8 @@ sealed class TypeWalker: CSharpSyntaxWalker {
 
 	void TypeDeclaration(TypeDeclarationSyntax node, SemanticModel model) {
 		containingType = node.Identifier.Text;
-		Console.Write(DottedName(node));
+		DottedName(node.Parent);
+		Console.Write(node.Identifier);
 		Console.WriteLine(node.BaseList);
 		var methods = node.Members.OfType<BaseMethodDeclarationSyntax>();
 
