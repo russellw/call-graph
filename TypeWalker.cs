@@ -39,7 +39,7 @@ sealed class TypeWalker: CSharpSyntaxWalker {
 		return n;
 	}
 
-	void Declare(int depth, BaseMethodDeclarationSyntax method) {
+	static void Declare(int depth, BaseMethodDeclarationSyntax method) {
 		Indent(depth);
 		Modifiers(method);
 		switch (method) {
@@ -92,19 +92,6 @@ sealed class TypeWalker: CSharpSyntaxWalker {
 		}
 	}
 
-	static string Name(ITypeSymbol type) {
-		if (type is INamedTypeSymbol namedType && namedType.ContainingType != null)
-			return $"{namedType.ContainingType.Name}.{namedType.Name}";
-		return type.ToString()!;
-	}
-
-	static string Name(TypeSyntax type, SemanticModel model) {
-		var symbol = model.GetSymbolInfo(type).Symbol;
-		if (null == symbol)
-			return type.ToString();
-		return Name((ITypeSymbol)symbol);
-	}
-
 	static void ParentDot(SyntaxNode? node) {
 		switch (node) {
 		case BaseNamespaceDeclarationSyntax namespaceDeclaration:
@@ -130,13 +117,6 @@ sealed class TypeWalker: CSharpSyntaxWalker {
 				return false;
 			}
 		return true;
-	}
-
-	static string Signature(IMethodSymbol method) {
-		var containingType = method.ContainingType;
-		var name = method.Name;
-		var parameters = string.Join(", ", method.Parameters.Select(p => $"{p.Type} {p.Name}"));
-		return $"{containingType}.{name}({parameters})";
 	}
 
 	bool TopLevel(BaseMethodDeclarationSyntax baseMethod) {
