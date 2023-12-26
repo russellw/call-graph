@@ -3,6 +3,8 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 sealed class TypeWalker: CSharpSyntaxWalker {
+	public static int outputLevel;
+
 	public TypeWalker(SemanticModel model) {
 		this.model = model;
 	}

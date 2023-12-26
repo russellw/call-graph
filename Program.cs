@@ -27,31 +27,50 @@ static class Program {
 		var name = typeof(Program).Assembly.GetName().Name;
 		Console.WriteLine($"{name} [options] path...");
 		Console.WriteLine("");
-		Console.WriteLine("-h  Show help");
-		Console.WriteLine("-V  Show version");
+		Console.WriteLine("-h   Show help");
+		Console.WriteLine("-V   Show version");
+		Console.WriteLine("");
+		Console.WriteLine("-lN  Level of detail");
+		Console.WriteLine("  0  Method declarations only");
+		Console.WriteLine("  1  Trees of exclusive callers");
+		Console.WriteLine("  2  Call graph within class");
+		Console.WriteLine("  3  All method calls");
 	}
 
 	static void Main(string[] args) {
 		try {
 			// Command line
+			var options = true;
 			var paths = new List<string>();
-			foreach (var arg in args) {
-				var s = arg;
-				if (!s.StartsWith('-')) {
-					paths.Add(s);
+			var stdin = false;
+			for (var i = 0; i < args.Length; i++) {
+				var arg = args[i];
+				if (!arg.StartsWith('-') || !options) {
+					paths.Add(arg);
 					continue;
 				}
-				while (s.StartsWith('-'))
-					s = s[1..];
-				switch (s) {
-				case "?":
-				case "h":
-				case "help":
+				var j = 0;
+				do
+					j++;
+				while (j < arg.Length && '-' == arg[j]);
+				if (arg.Length == j) {
+					switch (j) {
+					case 1:
+						stdin = true;
+						continue;
+					case 2:
+						options = false;
+						continue;
+					}
+					throw new IOException(arg + ": unknown option");
+				}
+				switch (arg[j]) {
+				case '?':
+				case 'h':
 					Help();
 					return;
-				case "V":
-				case "v":
-				case "version":
+				case 'V':
+				case 'v':
 					Version();
 					return;
 				default:
