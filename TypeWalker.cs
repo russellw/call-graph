@@ -132,21 +132,6 @@ sealed class TypeWalker: CSharpSyntaxWalker {
 		return true;
 	}
 
-	static string Signature(BaseMethodDeclarationSyntax method, SemanticModel model) {
-		var parameters = string.Join(", ", method.ParameterList.Parameters.Select(p => $"{Name(p.Type!, model)} {p.Identifier}"));
-		switch (method) {
-		case ConstructorDeclarationSyntax constructorDeclaration:
-			return $"{constructorDeclaration.Identifier}({parameters})";
-		case ConversionOperatorDeclarationSyntax conversionOperatorDeclaration:
-			return $"operator {conversionOperatorDeclaration.Type}({parameters})";
-		case MethodDeclarationSyntax methodDeclaration:
-			return $"{methodDeclaration.Identifier}({parameters})";
-		case OperatorDeclarationSyntax operatorDeclaration:
-			return $"operator {operatorDeclaration.OperatorToken}({parameters})";
-		}
-		throw new NotImplementedException(method.Kind().ToString());
-	}
-
 	static string Signature(IMethodSymbol method) {
 		var containingType = method.ContainingType;
 		var name = method.Name;
