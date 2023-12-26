@@ -44,23 +44,30 @@ sealed class TypeWalker: CSharpSyntaxWalker {
 		Modifiers(method);
 		switch (method) {
 		case ConstructorDeclarationSyntax constructorDeclaration:
+			Console.ForegroundColor = ConsoleColor.Yellow;
 			Console.Write(constructorDeclaration.Identifier);
 			break;
 		case ConversionOperatorDeclarationSyntax conversionOperatorDeclaration:
+			Console.Write("operator ");
+			Console.ForegroundColor = ConsoleColor.Yellow;
 			Console.Write(conversionOperatorDeclaration.Type);
 			break;
 		case MethodDeclarationSyntax methodDeclaration:
+			Console.ForegroundColor = ConsoleColor.Green;
 			Console.Write(methodDeclaration.ReturnType);
 			Console.Write(' ');
+			Console.ForegroundColor = ConsoleColor.Yellow;
 			Console.Write(methodDeclaration.Identifier);
 			break;
 		case OperatorDeclarationSyntax operatorDeclaration:
 			Console.Write("operator ");
+			Console.ForegroundColor = ConsoleColor.Yellow;
 			Console.Write(operatorDeclaration.OperatorToken);
 			break;
 		default:
 			throw new NotImplementedException(method.Kind().ToString());
 		}
+		Console.ForegroundColor = ConsoleColor.Green;
 		Console.WriteLine(method.ParameterList);
 	}
 
@@ -76,6 +83,7 @@ sealed class TypeWalker: CSharpSyntaxWalker {
 			if (listOnly)
 				continue;
 			Indent(depth);
+			Console.ForegroundColor = ConsoleColor.White;
 			Console.WriteLine(symbol);
 		}
 	}
@@ -86,6 +94,7 @@ sealed class TypeWalker: CSharpSyntaxWalker {
 	}
 
 	static void Modifiers(MemberDeclarationSyntax member) {
+		Console.ForegroundColor = ConsoleColor.Magenta;
 		foreach (var modifier in member.Modifiers) {
 			Console.Write(modifier);
 			Console.Write(' ');
@@ -131,6 +140,7 @@ sealed class TypeWalker: CSharpSyntaxWalker {
 	}
 
 	void TypeDeclaration(TypeDeclarationSyntax node, SemanticModel model) {
+		Console.ForegroundColor = ConsoleColor.Red;
 		ParentDot(node.Parent);
 		Console.Write(node.Identifier);
 		Console.WriteLine(node.BaseList);

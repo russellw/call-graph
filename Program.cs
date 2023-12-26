@@ -118,6 +118,7 @@ static class Program {
 				var root = tree.GetCompilationUnitRoot();
 				new TypeWalker(model).Visit(root);
 			}
+			Console.ResetColor();
 		} catch (IOException e) {
 			Console.Error.WriteLine(e.Message);
 			Environment.Exit(1);
