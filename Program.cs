@@ -58,7 +58,7 @@ static class Program {
 		case '-':
 			return true;
 		case '/':
-			return '\\' == Path.PathSeparator;
+			return '\\' == Path.DirectorySeparatorChar;
 		}
 		return false;
 	}
