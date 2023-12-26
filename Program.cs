@@ -2,9 +2,10 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis;
 
 static class Program {
-	delegate void Callback(string file);
+	static CSharpCompilation compilation = CSharpCompilation.Create(null);
+	static readonly List<SyntaxTree> trees = new();
 
-	static void Descend(string path, Callback f) {
+	static void Descend(string path) {
 		if (Directory.Exists(path)) {
 			foreach (var entry in new DirectoryInfo(path).EnumerateFileSystemInfos()) {
 				if (entry is DirectoryInfo) {
@@ -15,20 +16,30 @@ static class Program {
 					}
 					if (entry.Name.StartsWith('.'))
 						continue;
-				}
-				Descend(entry.FullName, f);
+				} else if (!entry.Extension.Equals(".cs", StringComparison.OrdinalIgnoreCase))
+					continue;
+				Descend(entry.FullName);
 			}
 			return;
 		}
-		f(path);
+		Do(path, File.ReadAllText(path));
+	}
+
+	static void Do(string file, string text) {
+		var tree = CSharpSyntaxTree.ParseText(text, CSharpParseOptions.Default, file);
+		foreach (var diagnostic in tree.GetDiagnostics())
+			Console.Error.WriteLine(diagnostic);
+		compilation = compilation.AddSyntaxTrees(tree);
+		trees.Add(tree);
 	}
 
 	static void Help() {
 		var name = typeof(Program).Assembly.GetName().Name;
 		Console.WriteLine($"{name} [options] path...");
 		Console.WriteLine("");
+		Console.WriteLine("-    Read stdin");
 		Console.WriteLine("-h   Show help");
-		Console.WriteLine("-V   Show version");
+		Console.WriteLine("-v   Show version");
 		Console.WriteLine("");
 		Console.WriteLine("-lN  Level of detail");
 		Console.WriteLine("  0  Method declarations only");
@@ -81,19 +92,10 @@ static class Program {
 				paths.Add(".");
 
 			// Source files
-			var compilation = CSharpCompilation.Create(null);
-			var trees = new List<SyntaxTree>();
 			foreach (var path in paths)
-				Descend(path, file => {
-					if (!Path.GetExtension(file).Equals(".cs", StringComparison.OrdinalIgnoreCase))
-						return;
-					var text = File.ReadAllText(file);
-					var tree = CSharpSyntaxTree.ParseText(text, CSharpParseOptions.Default, file);
-					foreach (var diagnostic in tree.GetDiagnostics())
-						Console.Error.WriteLine(diagnostic);
-					compilation = compilation.AddSyntaxTrees(tree);
-					trees.Add(tree);
-				});
+				Descend(path);
+			if (stdin)
+				Do("stdin", Console.In.ReadToEnd());
 
 			// Output
 			foreach (var tree in trees) {
