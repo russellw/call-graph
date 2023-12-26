@@ -78,7 +78,7 @@ static class Program {
 				do
 					j++;
 				while (j < arg.Length && '-' == arg[j]);
-				if (arg.Length == j) {
+				if (arg.Length == j)
 					switch (arg) {
 					case "-":
 						stdin = true;
@@ -87,7 +87,7 @@ static class Program {
 						options = false;
 						continue;
 					}
-				} else
+				else
 					switch (arg[j]) {
 					case '?':
 					case 'h':

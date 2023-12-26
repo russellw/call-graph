@@ -166,13 +166,12 @@ sealed class TypeWalker: CSharpSyntaxWalker {
 		}
 
 		// Output
-		foreach (var method in methods) {
+		foreach (var method in methods)
 			if (TopLevel(method)) {
 				visited.Clear();
 				Declare(1, method);
 				Descend(1, method);
 			}
-		}
 		Console.WriteLine();
 	}
 }
