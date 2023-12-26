@@ -159,7 +159,7 @@ sealed class TypeWalker: CSharpSyntaxWalker {
 		// Callees
 		callees.Clear();
 		foreach (var method in methods) {
-			var walker = new CalleeWalker(model, methodsDictionary);
+			var walker = new CalleeWalker(model);
 			walker.Visit(method);
 			callees.Add(method, walker.Callees);
 		}

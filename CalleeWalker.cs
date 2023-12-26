@@ -5,9 +5,8 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 sealed class CalleeWalker: CSharpSyntaxWalker {
 	public readonly OrderedSet<ISymbol> Callees = new();
 
-	public CalleeWalker(SemanticModel model, Dictionary<ISymbol, BaseMethodDeclarationSyntax> methodsDictionary) {
+	public CalleeWalker(SemanticModel model) {
 		this.model = model;
-		this.methodsDictionary = methodsDictionary;
 	}
 
 	public override void VisitInvocationExpression(InvocationExpressionSyntax node) {
@@ -20,7 +19,6 @@ sealed class CalleeWalker: CSharpSyntaxWalker {
 		Add(node);
 	}
 
-	readonly Dictionary<ISymbol, BaseMethodDeclarationSyntax> methodsDictionary;
 	readonly SemanticModel model;
 
 	void Add(SyntaxNode node) {
