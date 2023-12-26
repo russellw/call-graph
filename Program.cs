@@ -83,11 +83,11 @@ static class Program {
 					j++;
 				while (j < arg.Length && '-' == arg[j]);
 				if (arg.Length == j) {
-					switch (j) {
-					case 1:
+					switch (arg) {
+					case "-":
 						stdin = true;
 						continue;
-					case 2:
+					case "--":
 						options = false;
 						continue;
 					}
