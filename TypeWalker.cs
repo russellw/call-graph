@@ -8,7 +8,7 @@ sealed class TypeWalker: CSharpSyntaxWalker {
 	}
 
 	public override void VisitClassDeclaration(ClassDeclarationSyntax node) {
-		Etc.Modifiers(node);
+		Modifiers(node);
 		Console.Write("class ");
 		TypeDeclaration(node, model);
 
@@ -16,7 +16,7 @@ sealed class TypeWalker: CSharpSyntaxWalker {
 	}
 
 	public override void VisitStructDeclaration(StructDeclarationSyntax node) {
-		Etc.Modifiers(node);
+		Modifiers(node);
 		Console.Write("struct ");
 		TypeDeclaration(node, model);
 
@@ -39,7 +39,7 @@ sealed class TypeWalker: CSharpSyntaxWalker {
 
 	void Declare(int level, BaseMethodDeclarationSyntax baseMethod) {
 		Indent(level);
-		Etc.Modifiers(baseMethod);
+		Modifiers(baseMethod);
 		switch (baseMethod) {
 		case MethodDeclarationSyntax method:
 			Console.Write(method.ReturnType);
@@ -68,6 +68,13 @@ sealed class TypeWalker: CSharpSyntaxWalker {
 	static void Indent(int n) {
 		while (0 != n--)
 			Console.Write("    ");
+	}
+
+	static void Modifiers(MemberDeclarationSyntax member) {
+		foreach (var modifier in member.Modifiers) {
+			Console.Write(modifier);
+			Console.Write(' ');
+		}
 	}
 
 	static void ParentDot(SyntaxNode? node) {

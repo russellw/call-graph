@@ -4,13 +4,6 @@ using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 
 static class Etc {
-	public static void Modifiers(MemberDeclarationSyntax member) {
-		foreach (var modifier in member.Modifiers) {
-			Console.Write(modifier);
-			Console.Write(' ');
-		}
-	}
-
 	public static void Print(object a, [CallerFilePath] string file = "", [CallerLineNumber] int line = 0) {
 		Console.Error.WriteLine($"{file}:{line}: {a}");
 	}
