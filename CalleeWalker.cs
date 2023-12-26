@@ -11,13 +11,20 @@ sealed class CalleeWalker: CSharpSyntaxWalker {
 
 	public override void VisitInvocationExpression(InvocationExpressionSyntax node) {
 		base.VisitInvocationExpression(node);
+		Add(model.GetSymbolInfo(node));
+	}
 
-		var info = model.GetSymbolInfo(node);
+	public override void VisitObjectCreationExpression(ObjectCreationExpressionSyntax node) {
+		base.VisitObjectCreationExpression(node);
+		Add(model.GetSymbolInfo(node));
+	}
+
+	readonly SemanticModel model;
+
+	void Add(SymbolInfo info) {
 		if (info.Symbol != null)
 			Callees.Add((IMethodSymbol)info.Symbol);
 		foreach (var symbol in info.CandidateSymbols)
 			Callees.Add((IMethodSymbol)symbol);
 	}
-
-	readonly SemanticModel model;
 }
