@@ -3,6 +3,7 @@ using Microsoft.CodeAnalysis;
 
 static class Program {
 	static CSharpCompilation compilation = CSharpCompilation.Create(null);
+	static bool options = true;
 	static readonly List<SyntaxTree> trees = new();
 
 	static void Descend(string path) {
@@ -48,18 +49,35 @@ static class Program {
 		Console.WriteLine("  3  All method calls");
 	}
 
+	static bool IsOption(string arg) {
+		if (!options)
+			return false;
+		if (0 == arg.Length)
+			return false;
+		switch (arg[0]) {
+		case '-':
+			return true;
+		case '/':
+			return '\\' == Path.PathSeparator;
+		}
+		return false;
+	}
+
 	static void Main(string[] args) {
 		try {
 			// Command line
-			var options = true;
 			var paths = new List<string>();
 			var stdin = false;
 			for (var i = 0; i < args.Length; i++) {
 				var arg = args[i];
-				if (!arg.StartsWith('-') || !options) {
+
+				// Path
+				if (!IsOption(arg)) {
 					paths.Add(arg);
 					continue;
 				}
+
+				// Option
 				var j = 0;
 				do
 					j++;
@@ -88,7 +106,7 @@ static class Program {
 					throw new IOException(arg + ": unknown option");
 				}
 			}
-			if (!paths.Any())
+			if (!paths.Any() && !stdin)
 				paths.Add(".");
 
 			// Source files
