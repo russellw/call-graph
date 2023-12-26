@@ -43,12 +43,27 @@ sealed class TypeWalker: CSharpSyntaxWalker {
 		Indent(depth);
 		Modifiers(method);
 		switch (method) {
+		case ConstructorDeclarationSyntax constructorDeclaration:
+			Console.Write(constructorDeclaration.Identifier);
+			break;
+		case ConversionOperatorDeclarationSyntax conversionOperatorDeclaration:
+			Console.Write(conversionOperatorDeclaration.Type);
+			break;
 		case MethodDeclarationSyntax methodDeclaration:
 			Console.Write(methodDeclaration.ReturnType);
 			Console.Write(' ');
+			Console.Write(methodDeclaration.Identifier);
 			break;
+		case OperatorDeclarationSyntax operatorDeclaration:
+			Console.Write("operator ");
+			Console.Write(operatorDeclaration.OperatorToken);
+			break;
+		default:
+			throw new NotImplementedException(method.Kind().ToString());
 		}
-		Console.WriteLine(Signature(method, model));
+		Console.Write('(');
+		Console.Write(string.Join(", ", method.ParameterList.Parameters.Select(p => $"{Name(p.Type!, model)} {p.Identifier}")));
+		Console.WriteLine(')');
 	}
 
 	void Descend(int depth, BaseMethodDeclarationSyntax method) {
