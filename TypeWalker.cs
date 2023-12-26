@@ -94,7 +94,7 @@ sealed class TypeWalker: CSharpSyntaxWalker {
 	}
 
 	static void Modifiers(MemberDeclarationSyntax member) {
-		Console.ForegroundColor = ConsoleColor.Magenta;
+		Console.ForegroundColor = ConsoleColor.Blue;
 		foreach (var modifier in member.Modifiers) {
 			Console.Write(modifier);
 			Console.Write(' ');
@@ -143,6 +143,7 @@ sealed class TypeWalker: CSharpSyntaxWalker {
 		Console.ForegroundColor = ConsoleColor.Red;
 		ParentDot(node.Parent);
 		Console.Write(node.Identifier);
+		Console.ForegroundColor = ConsoleColor.Magenta;
 		Console.WriteLine(node.BaseList);
 		var methods = node.Members.OfType<BaseMethodDeclarationSyntax>();
 
