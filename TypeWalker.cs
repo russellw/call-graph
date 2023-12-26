@@ -25,8 +25,8 @@ sealed class TypeWalker: CSharpSyntaxWalker {
 		base.VisitStructDeclaration(node);
 	}
 
-	readonly Dictionary<BaseMethodDeclarationSyntax, OrderedSet<IMethodSymbol>> callees = new();
-	readonly Dictionary<IMethodSymbol, BaseMethodDeclarationSyntax> methodsDictionary = new(SymbolEqualityComparer.Default);
+	readonly Dictionary<BaseMethodDeclarationSyntax, OrderedSet<ISymbol>> callees = new();
+	readonly Dictionary<ISymbol, BaseMethodDeclarationSyntax> methodsDictionary = new(SymbolEqualityComparer.Default);
 	readonly SemanticModel model;
 	readonly HashSet<BaseMethodDeclarationSyntax> visited = new();
 
@@ -147,7 +147,7 @@ sealed class TypeWalker: CSharpSyntaxWalker {
 		var methods = node.Members.OfType<BaseMethodDeclarationSyntax>();
 
 		// Mostly we want to refer to methods as BaseMethodDeclarationSyntax
-		// but (InvocationExpressionSyntax, model) gives IMethodSymbol
+		// but (InvocationExpressionSyntax, model) gives ISymbol
 		// so need to be able to convert back
 		// though only for methods in the current class
 		// being the only ones we need to do something more with
