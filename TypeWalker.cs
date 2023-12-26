@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 sealed class TypeWalker: CSharpSyntaxWalker {
-	public static uint detail;
+	public static bool listOnly;
 
 	public TypeWalker(SemanticModel model) {
 		this.model = model;
@@ -55,8 +55,7 @@ sealed class TypeWalker: CSharpSyntaxWalker {
 		if (!visited.Add(method))
 			return;
 		depth++;
-		switch (detail) {
-		case 1:
+		if (listOnly) {
 			foreach (var symbol in callees[method])
 				if (methodsDictionary.TryGetValue(symbol, out var callee)) {
 					if (TopLevel(callee))
@@ -64,33 +63,20 @@ sealed class TypeWalker: CSharpSyntaxWalker {
 					Declare(depth, callee);
 					Descend(depth, callee);
 				}
-			break;
-		case 2:
-			foreach (var symbol in callees[method])
-				if (methodsDictionary.TryGetValue(symbol, out var callee)) {
-					if (TopLevel(callee)) {
-						Declare(depth, callee);
-						continue;
-					}
+			return;
+		}
+		foreach (var symbol in callees[method]) {
+			if (methodsDictionary.TryGetValue(symbol, out var callee)) {
+				if (TopLevel(callee)) {
 					Declare(depth, callee);
-					Descend(depth, callee);
-				}
-			break;
-		default:
-			foreach (var symbol in callees[method]) {
-				if (methodsDictionary.TryGetValue(symbol, out var callee)) {
-					if (TopLevel(callee)) {
-						Declare(depth, callee);
-						continue;
-					}
-					Declare(depth, callee);
-					Descend(depth, callee);
 					continue;
 				}
-				Indent(depth);
-				Console.WriteLine(symbol);
+				Declare(depth, callee);
+				Descend(depth, callee);
+				continue;
 			}
-			break;
+			Indent(depth);
+			Console.WriteLine(symbol);
 		}
 	}
 
@@ -170,10 +156,6 @@ sealed class TypeWalker: CSharpSyntaxWalker {
 
 		// Output
 		foreach (var method in methods) {
-			if (0 == detail) {
-				Declare(1, method);
-				continue;
-			}
 			if (TopLevel(method)) {
 				visited.Clear();
 				Declare(1, method);

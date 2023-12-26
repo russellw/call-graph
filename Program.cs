@@ -38,15 +38,11 @@ static class Program {
 		var name = typeof(Program).Assembly.GetName().Name;
 		Console.WriteLine($"{name} [options] path...");
 		Console.WriteLine("");
-		Console.WriteLine("-    Read stdin");
-		Console.WriteLine("-h   Show help");
-		Console.WriteLine("-v   Show version");
+		Console.WriteLine("-   Read stdin");
+		Console.WriteLine("-h  Show help");
+		Console.WriteLine("-v  Show version");
 		Console.WriteLine("");
-		Console.WriteLine("-dN  Details to output:");
-		Console.WriteLine("  0  Method declarations only");
-		Console.WriteLine("  1  Trees of exclusive callers");
-		Console.WriteLine("  2  Call graph within class");
-		Console.WriteLine("  3  All method calls");
+		Console.WriteLine("-l  List methods only, don't show calls");
 	}
 
 	static bool IsOption(string arg) {
@@ -91,23 +87,21 @@ static class Program {
 						options = false;
 						continue;
 					}
-					throw new IOException(arg + ": unknown option");
-				}
-				switch (arg[j]) {
-				case '?':
-				case 'h':
-					Help();
-					return;
-				case 'V':
-				case 'v':
-					Version();
-					return;
-				case 'd':
-					TypeWalker.detail = uint.Parse(OptionArg(args, ref i, j));
-					break;
-				default:
-					throw new IOException(arg + ": unknown option");
-				}
+				} else
+					switch (arg[j]) {
+					case '?':
+					case 'h':
+						Help();
+						return;
+					case 'V':
+					case 'v':
+						Version();
+						return;
+					case 'l':
+						TypeWalker.listOnly = true;
+						continue;
+					}
+				throw new IOException(arg + ": unknown option");
 			}
 			if (!paths.Any() && !stdin)
 				paths.Add(".");
@@ -128,26 +122,6 @@ static class Program {
 			Console.Error.WriteLine(e.Message);
 			Environment.Exit(1);
 		}
-	}
-
-	static string OptionArg(string[] args, ref int i, int j) {
-		var arg = args[i];
-		do
-			j++;
-		while (j < arg.Length && (char.IsAsciiLetterLower(arg[j]) || '-' == arg[j]));
-		if (arg.Length == j) {
-			i++;
-			if (args.Length == i)
-				throw new IOException(arg + ": expected option arg");
-			return args[i];
-		}
-		switch (arg[j]) {
-		case ':':
-		case '=':
-			j++;
-			break;
-		}
-		return arg[j..];
 	}
 
 	static void Version() {
