@@ -68,26 +68,13 @@ sealed class TypeWalker: CSharpSyntaxWalker {
 		if (!visited.Add(method))
 			return;
 		depth++;
-		if (listOnly) {
-			foreach (var symbol in callees[method])
-				if (methodsDictionary.TryGetValue(symbol, out var callee)) {
-					if (TopLevel(callee))
-						continue;
-					Declare(depth, callee);
-					Descend(depth, callee);
-				}
-			return;
-		}
 		foreach (var symbol in callees[method]) {
-			if (methodsDictionary.TryGetValue(symbol, out var callee)) {
-				if (TopLevel(callee)) {
-					Declare(depth, callee);
-					continue;
-				}
+			if (methodsDictionary.TryGetValue(symbol, out var callee) && !TopLevel(callee)) {
 				Declare(depth, callee);
 				Descend(depth, callee);
-				continue;
 			}
+			if (listOnly)
+				continue;
 			Indent(depth);
 			Console.WriteLine(symbol);
 		}
