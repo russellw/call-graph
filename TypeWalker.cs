@@ -48,7 +48,7 @@ sealed class TypeWalker: CSharpSyntaxWalker {
 			Console.Write(' ');
 			break;
 		}
-		Console.WriteLine(Etc.Signature(method, model));
+		Console.WriteLine(Signature(method, model));
 	}
 
 	void Descend(int depth, BaseMethodDeclarationSyntax method) {
@@ -92,6 +92,19 @@ sealed class TypeWalker: CSharpSyntaxWalker {
 		}
 	}
 
+	static string Name(ITypeSymbol type) {
+		if (type is INamedTypeSymbol namedType && namedType.ContainingType != null)
+			return $"{namedType.ContainingType.Name}.{namedType.Name}";
+		return type.ToString()!;
+	}
+
+	static string Name(TypeSyntax type, SemanticModel model) {
+		var symbol = model.GetSymbolInfo(type).Symbol;
+		if (null == symbol)
+			return type.ToString();
+		return Name((ITypeSymbol)symbol);
+	}
+
 	static void ParentDot(SyntaxNode? node) {
 		switch (node) {
 		case BaseNamespaceDeclarationSyntax namespaceDeclaration:
@@ -117,6 +130,28 @@ sealed class TypeWalker: CSharpSyntaxWalker {
 				return false;
 			}
 		return true;
+	}
+
+	static string Signature(BaseMethodDeclarationSyntax method, SemanticModel model) {
+		var parameters = string.Join(", ", method.ParameterList.Parameters.Select(p => $"{Name(p.Type!, model)} {p.Identifier}"));
+		switch (method) {
+		case ConstructorDeclarationSyntax constructorDeclaration:
+			return $"{constructorDeclaration.Identifier}({parameters})";
+		case ConversionOperatorDeclarationSyntax conversionOperatorDeclaration:
+			return $"operator {conversionOperatorDeclaration.Type}({parameters})";
+		case MethodDeclarationSyntax methodDeclaration:
+			return $"{methodDeclaration.Identifier}({parameters})";
+		case OperatorDeclarationSyntax operatorDeclaration:
+			return $"operator {operatorDeclaration.OperatorToken}({parameters})";
+		}
+		throw new NotImplementedException(method.Kind().ToString());
+	}
+
+	static string Signature(IMethodSymbol method) {
+		var containingType = method.ContainingType;
+		var name = method.Name;
+		var parameters = string.Join(", ", method.Parameters.Select(p => $"{p.Type} {p.Name}"));
+		return $"{containingType}.{name}({parameters})";
 	}
 
 	bool TopLevel(BaseMethodDeclarationSyntax baseMethod) {
