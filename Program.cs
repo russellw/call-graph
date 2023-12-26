@@ -42,7 +42,7 @@ static class Program {
 		Console.WriteLine("-h   Show help");
 		Console.WriteLine("-v   Show version");
 		Console.WriteLine("");
-		Console.WriteLine("-lN  Level of detail");
+		Console.WriteLine("-dN  Details to output:");
 		Console.WriteLine("  0  Method declarations only");
 		Console.WriteLine("  1  Trees of exclusive callers");
 		Console.WriteLine("  2  Call graph within class");
@@ -102,8 +102,8 @@ static class Program {
 				case 'v':
 					Version();
 					return;
-				case 'l':
-					TypeWalker.outputLevel = int.Parse(OptionArg(args, ref i, j));
+				case 'd':
+					TypeWalker.detail = uint.Parse(OptionArg(args, ref i, j));
 					break;
 				default:
 					throw new IOException(arg + ": unknown option");
