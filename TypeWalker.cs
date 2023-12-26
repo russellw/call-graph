@@ -61,9 +61,7 @@ sealed class TypeWalker: CSharpSyntaxWalker {
 		default:
 			throw new NotImplementedException(method.Kind().ToString());
 		}
-		Console.Write('(');
-		Console.Write(string.Join(", ", method.ParameterList.Parameters.Select(p => $"{Name(p.Type!, model)} {p.Identifier}")));
-		Console.WriteLine(')');
+		Console.WriteLine(method.ParameterList);
 	}
 
 	void Descend(int depth, BaseMethodDeclarationSyntax method) {
