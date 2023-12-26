@@ -37,16 +37,16 @@ sealed class TypeWalker: CSharpSyntaxWalker {
 		return n;
 	}
 
-	void Declare(int level, BaseMethodDeclarationSyntax baseMethod) {
+	void Declare(int level, BaseMethodDeclarationSyntax method) {
 		Indent(level);
-		Modifiers(baseMethod);
-		switch (baseMethod) {
-		case MethodDeclarationSyntax method:
-			Console.Write(method.ReturnType);
+		Modifiers(method);
+		switch (method) {
+		case MethodDeclarationSyntax methodDeclaration:
+			Console.Write(methodDeclaration.ReturnType);
 			Console.Write(' ');
 			break;
 		}
-		Console.WriteLine(Etc.Signature(baseMethod, model));
+		Console.WriteLine(Etc.Signature(method, model));
 	}
 
 	void Descend(int level, BaseMethodDeclarationSyntax method) {
