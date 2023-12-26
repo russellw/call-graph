@@ -102,6 +102,9 @@ static class Program {
 				case 'v':
 					Version();
 					return;
+				case 'l':
+					TypeWalker.outputLevel = int.Parse(OptionArg(args, ref i, j));
+					break;
 				default:
 					throw new IOException(arg + ": unknown option");
 				}
@@ -125,6 +128,26 @@ static class Program {
 			Console.Error.WriteLine(e.Message);
 			Environment.Exit(1);
 		}
+	}
+
+	static string OptionArg(string[] args, ref int i, int j) {
+		var arg = args[i];
+		do
+			j++;
+		while (j < arg.Length && (char.IsAsciiLetterLower(arg[j]) || '-' == arg[j]));
+		if (arg.Length == j) {
+			i++;
+			if (args.Length == i)
+				throw new IOException(arg + ": expected option arg");
+			return args[i];
+		}
+		switch (arg[j]) {
+		case ':':
+		case '=':
+			j++;
+			break;
+		}
+		return arg[j..];
 	}
 
 	static void Version() {
