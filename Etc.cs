@@ -18,16 +18,19 @@ static class Etc {
 		Console.Error.WriteLine($"{file}:{line}: [{s}]");
 	}
 
-	public static string Signature(BaseMethodDeclarationSyntax baseMethod, SemanticModel model) {
-		var parameters =
-			string.Join(", ", baseMethod.ParameterList.Parameters.Select(p => $"{Name(p.Type!, model)} {p.Identifier}"));
-		switch (baseMethod) {
-		case ConstructorDeclarationSyntax constructor:
-			return $"{constructor.Identifier}({parameters})";
-		case MethodDeclarationSyntax method:
-			return $"{method.Identifier}({parameters})";
+	public static string Signature(BaseMethodDeclarationSyntax method, SemanticModel model) {
+		var parameters = string.Join(", ", method.ParameterList.Parameters.Select(p => $"{Name(p.Type!, model)} {p.Identifier}"));
+		switch (method) {
+		case ConstructorDeclarationSyntax constructorDeclaration:
+			return $"{constructorDeclaration.Identifier}({parameters})";
+		case ConversionOperatorDeclarationSyntax conversionOperatorDeclaration:
+			return $"operator {conversionOperatorDeclaration.Type}({parameters})";
+		case MethodDeclarationSyntax methodDeclaration:
+			return $"{methodDeclaration.Identifier}({parameters})";
+		case OperatorDeclarationSyntax operatorDeclaration:
+			return $"operator {operatorDeclaration.OperatorToken}({parameters})";
 		}
-		throw new NotImplementedException(baseMethod.ToString());
+		throw new NotImplementedException(method.Kind().ToString());
 	}
 
 	public static string Signature(IMethodSymbol method) {
